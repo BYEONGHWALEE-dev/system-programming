@@ -239,7 +239,12 @@ int token_parsing(char* str)
     // 첫 토큰이 opcode인 경우 → label 없음
     int opcode_idx = search_opcode(tok_list[0]);
     int is_label = (opcode_idx < 0); // 명령어가 아니면 label 취급
-
+    
+    // 집어넣기 전에 개행 먼저 삭제
+    for(int i = 0; i < count; i++){
+        trim(tok_list[i]);
+    }
+    
     if (is_label) {
         t->label = strdup(tok_list[0]);
         if (count > 1) t->operator = strdup(tok_list[1]);
@@ -321,12 +326,6 @@ static int assem_pass1(void)
         char* op    = tk->operator ? tk->operator : "";
         char* opd   = tk->operand[0] ? tk->operand[0] : "";
         
-        // 개행삭제
-        char opd_buf[64] = "";
-        if (tk->operand[0]) strncpy(opd_buf, tk->operand[0], sizeof(opd_buf) - 1);
-        opd_buf[strcspn(opd_buf, "\n")] = '\0';
-        trim(opd_buf);
-        
         // opcode 인덱스 찾기
         int idx = search_opcode(tk->operator);
         char opcode_buf[8];
@@ -336,7 +335,7 @@ static int assem_pass1(void)
             strcpy(opcode_buf, " ");
         }
 
-        printf("%-6s %-6s %-8s %s\n", label, op, opd_buf, opcode_buf);
+        printf("%-6s %-6s %-8s %s\n", label, op, opd, opcode_buf);
     }
 
     return 0;
@@ -489,6 +488,7 @@ void make_literaltab_output(char* filename)
  * 주의 :
  * ------------------------------------------------------------
  */
+
 
 static int assem_pass2(void)
 {
