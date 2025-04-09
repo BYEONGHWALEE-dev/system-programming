@@ -24,6 +24,7 @@ LDL     3   08  2
 LDS     3   6C  2
 LDT     3   74  2
 LDX     3   04  2
+LPS	3   D0  1
 MUL     3   20  2
 MULF    3   60  2
 MULR    2   98  2
@@ -32,6 +33,8 @@ RD      3   D8  1
 RSUB    3   4C  0
 SHIFTL  2   A4  2
 SHIFTR  2   A8  2
+SIO	1   F0  0
+SSK     3   EC  1
 STA     3   0C  2
 STB     3   78  2
 STCH    3   54  2
@@ -44,7 +47,9 @@ STX     3   10  2
 SUB     3   1C  2
 SUBF    3   5C  2
 SUBR    2   94  2
+SVC     2   B0  1
 TD      3   E0  1
+TIO     1   F8  0
 TIX     3   2C  2
 TIXR    2   B8  1
 WD      3   DC  1

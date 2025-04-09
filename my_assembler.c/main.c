@@ -55,6 +55,11 @@ int main(int args, char *arg[])
     // make_objectcode_output("output_objectcode.txt"); //  추후 과제에 사용 예정
 }
 
+// 토큰에 개행 문자를 모두 삭제하고 테이블에 넣도록 하기 위해 만듦
+void trim(char* s) {
+    s[strcspn(s, "\n\r\t ")] = '\0';  // 앞에서 처음 나오는 특수문자 위치를 '\0' 처리
+}
+
 /* ------------------------------------------------------------
  * 설명 : 프로그램 초기화를 위한 자료구조 생성 및 파일을 읽는 함수이다.
  * 매계 : 없음
@@ -64,11 +69,6 @@ int main(int args, char *arg[])
  *           구현하였다.
   * ------------------------------------------------------------
 */
-
-// 토큰에 개행 문자를 모두 삭제하고 테이블에 넣도록 하기 위해 만듦
-void trim(char* s) {
-    s[strcspn(s, "\n\r\t ")] = '\0';  // 앞에서 처음 나오는 특수문자 위치를 '\0' 처리
-}
 
 int init_my_assembler(void)
 {
@@ -179,8 +179,8 @@ int init_input_file(char* input_file)
             return -1;
         }
         
-        strcpy(input_data[line_num], buffer);
-        line_num++;
+        strcpy(input_data[line_num++], buffer);
+
     }
     
     fclose(file);
@@ -216,14 +216,14 @@ int token_parsing(char* str)
     t->operator = NULL;
     strcpy(t->comment, "");
 
-    // 토큰 분리 (탭 또는 공백 기준)
+    
     char* tok_list[MAX_COLUMNS + 1] = { NULL, };
     int count = 0;
-
-    char* tok = strtok(str, " \t");
+    
+    // 토큰 분리 (탭)
+    char* tok = strtok(str, "\t");
     while (tok != NULL && count < MAX_COLUMNS + 1) {
         if (tok[0] == '.') {
-            strcpy(t->comment, tok);
             break;
         }
         tok[strcspn(tok,"\n")] = '\0';
@@ -312,7 +312,11 @@ static int assem_pass1(void)
 
     for (i = 0; i < line_num; i++) {
         if (input_data[i] == NULL || input_data[i][0] == '\0') continue;
-
+        
+        if (input_data[i][0] == '.'){
+            printf("%s", input_data[i]);
+        }
+        
         if (token_parsing(input_data[i]) < 0) {
             fprintf(stderr, "Token parsing failed at line %d\n", i);
             return -1;
@@ -320,8 +324,9 @@ static int assem_pass1(void)
 
         token* tk = token_table[token_line - 1];
 
-        if (tk->operator == NULL || tk->operator[0] == '.') continue;
-
+        if(tk->operator == NULL) {
+            continue;
+        }
         char* label = tk->label ? tk->label : "";
         char* op    = tk->operator ? tk->operator : "";
         char* opd   = tk->operand[0] ? tk->operand[0] : "";
@@ -358,42 +363,6 @@ static int assem_pass1(void)
 void make_opcode_output(char* file_name)
 {
     /* add your code here */
-    FILE* fp;
-    int i, idx;
-    
-    // 출력 스트림 결정
-    if(file_name == NULL) {
-        fp = stdout;
-    } else {
-        fp = fopen(file_name, "w");
-        if(fp == NULL) {
-            fprintf(stderr, "파일 열기 실패 : %s\n", file_name);
-            return;
-        }
-    }
-    
-    // 각 toekn 라인에 대해 출력
-    for(i = 0; i < token_line; i++) {
-        token* tk = token_table[i];
-        
-        // 주석 라인인지 확인(operator가 NULL이거나 시작 문자가 '.')
-        if(tk->operator == NULL || tk->operator[0] == '.') {
-            fprintf(fp, "%s\n", input_data[i]);
-            continue;
-        }
-        
-        // opcode 인덱스 찾고 난 후
-        idx = search_opcode(tk->operator);
-        if(idx >= 0) {
-            fprintf(fp, "%02X %s\n", inst_table[idx]->op, input_data[i]);
-        } else {
-            fprintf(fp, "?? %s\n", input_data[i]);
-        }
-    }
-    
-    if(fp != stdout) {
-        fclose(fp);
-    }
 }
 
 /* ------------------------------------------------------------
@@ -410,30 +379,6 @@ void make_symtab_output(char* file_name)
 {
     /* add your code here */
     
-    FILE* fp;
-    int i;
-    
-    // 출력 대상 결정
-    if(file_name==NULL) {
-        fp = stdout;
-    } else {
-        fp = fopen(file_name, "w");
-        if(fp == NULL) {
-            fprintf(stderr, "파일 열기 실패: %s\n", file_name);
-            return;
-        }
-    }
-    
-    // 테이블 출력
-    fprintf(fp, "SYMBOL\tADDRESS\n");
-    fprintf(fp, "--------------------\n");
-    for(i = 0; i < label_num; i++) {
-        fprintf(fp, "%s\t%04X\n", sym_table[i].symbol, sym_table[i].addr);
-    }
-    
-    if(fp!=stdout) {
-        fclose(fp);
-    }
 }
 
 
@@ -449,32 +394,7 @@ void make_symtab_output(char* file_name)
 */
 void make_literaltab_output(char* filename)
 {
-    /* add your code here */
-    FILE* fp;
     
-    // 출력 대상 결정
-    if(filename == NULL) {
-        fp=stdout;
-    } else{
-        fp = fopen(filename, "w");
-        if(fp == NULL) {
-            fprintf(stderr, "파일 열기 실패 : %s\n", filename);
-            return;
-        }
-    }
-    
-    // 리터럴 테이블
-    fprintf(fp, "LITERRAL\tADDRESS\n");
-    fprintf(fp, "--------------------\n");
-    for(int i = 0; i < label_num; i++) {
-        if(literal_table[i].literal != NULL) {
-            fprintf(fp, "%s\t%04X\n", literal_table[i].literal,literal_table[i].addr);
-        }
-    }
-    
-    if(fp != stdout) {
-        fclose(fp);
-    }
 }
 
 
@@ -492,43 +412,6 @@ void make_literaltab_output(char* filename)
 
 static int assem_pass2(void)
 {
-
-    /* add your code here */
-    int inst_idx;
-    token* tk;
-    
-    for(int i = 0; i< token_line; i++) {
-        tk = token_table[i];
-        
-        // 주석 또는 명령어가 없는 줄은 무시
-        if(tk->operator == NULL || tk->operator[0] == '.'){
-            continue;
-        }
-        
-        // opcode 인덱스 검색
-        inst_idx = search_opcode(tk->operator);
-        if(inst_idx<0) {
-            fprintf(stderr, "Unknown opcode at line %d: %s\n", i + 1, tk->operator);
-            return -1;
-        }
-        
-        // isnt_table에서 정보 가져오기
-        inst* inst_info = inst_table[inst_idx];
-        int format = inst_info->format;
-        
-        // 간단한 format 처리(format 1, 2)
-        if(format == 1) {
-            printf("%02X\n", inst_info->op);
-        } else if(format == 2) {
-            // format 2 : opcode + r
-            // operand 처리
-            printf("%2X))\n", inst_info->op);
-        } else if(format == 3 || format == 4) {
-            // format 3, 4 : opcode + address
-            // 실제 구현신 symbol 주소 조회, nixbpe 사용
-            printf("%02X0000\n", inst_info->op);
-        }
-    }
     
     return 0;
 
@@ -548,40 +431,7 @@ static int assem_pass2(void)
 */
 void make_objectcode_output(char* file_name)
 {
-    /* add your code here */
-    FILE* fp;
-    
-    // 출력 대상 결정
-    if(file_name == NULL) {
-        fp = stdout;
-    } else {
-        fp = fopen(file_name, "w");
-        if(fp == NULL) {
-            fprintf(stderr, "파일 열기 실패 : %s\n", file_name);
-            return;
-        }
-    }
-    
-    // 1. Header Record 출력
-    fprintf(fp, "%s\n", objcode.header_record);
-    
-    // 2. Text Records 출력
-    for(int i = 0; i < objcode.text_record_count; i++) {
-        fprintf(fp, "%s\n", objcode.text_records[i]);
-    }
-    
-    // 3. Modification Records 출력
-    for(int i = 0; i < objcode.mod_record_count; i++) {
-        fprintf(fp, "%s\n", objcode.mod_records[i]);
-    }
-    
-    // 4. End Record 출력
-    fprintf(fp, "%s\n", objcode.end_record);
-    
-    // 파일 닫기
-    if(fp != stdout) {
-        fclose(fp);
-    }
+   
 }
 
 
