@@ -44,15 +44,16 @@ int main(int args, char *arg[])
 
 
    make_symtab_output("output_symtab.txt");
-    /*make_literaltab_output("output_littab.txt");
+   make_literaltab_output("output_littab.txt");
+
    if (assem_pass2() < 0)
    {
       printf(" assem_pass2: 패스2 과정에서 실패하였습니다.  \n");
       return -1;
    }
 
-   make_objectcode_output("output_objectcode.txt");
-   */
+   // make_objectcode_output("output_objectcode.txt");
+   
    return 0;
 }
 
@@ -322,7 +323,7 @@ int search_opcode(char *str)
 */
 // extref에 있는지 확인하는 함수
 int is_in_extref_list(const char* value) {
-    for (int i = 0; i < MAX_OPERAND; i++) {
+    for (int i = 0; i < extref_index; i++) {
         if (strcmp(value, extref_table[i]) == 0) {
             return 0;  // 있음
         }
@@ -346,9 +347,11 @@ int extract_operands(char* expr, char* operands[2]){
         // 연산자가 없으니 operand가 하나
         operands[0] = strdup(expr);
         operands[1] = strdup(NULL);
+        return 1;
     }
     
     // 연산자가 있으면 operand가 2개 이상(여기선 최대 2개라고 가정)
+    num_operator = *pos;
     long len_left = pos - expr;
     operands[0] = (char*)malloc(len_left+1);
     strncpy(operands[0], expr, len_left);
@@ -378,6 +381,21 @@ int sep_by_comma(char* line, char* output[], int max_symbols) {
 
     return count; // 실제 저장된 심볼 수
 }
+// 문자열이 숫자인지 아닌지 확인하는 함수
+int is_numeric(char* str) {
+    if (str == NULL || *str == '\0') return 0;  // 빈 문자열 또는 NULL은 숫자 아님
+
+    // 음수 부호 '-' 체크 (선택사항)
+    if (*str == '-') str++;  // 첫 문자가 '-'일 경우 skip
+
+    while (*str) {
+        if (!isdigit((unsigned char)*str))
+            return 0;  // 숫자가 아니면 false
+        str++;
+    }
+
+    return 1;  // 모두 숫자면 true
+}
 //----------------------------------------------------------//
 static int assem_pass1(void)
 {
@@ -388,9 +406,12 @@ static int assem_pass1(void)
     */
     literal_index = 0;
     sym_index = 0;// 리터럴 테이블에 리터럴이 몇 개 들어있는지 확인하기 위함
+    extdef_index = 0;
+    extref_index = 0;
     int ltorg_check = 0; // 리터럴 테이블에서 어디까지 주소가 배정되었는지 확인하기 위함
     token_line = 0;
     locctr = 0;
+
     for (int i = 0; i < line_num; i++) {
         if (input_data[i] == NULL || input_data[i][0] == '\0') continue;
         if (input_data[i][0] == '.') continue;
@@ -409,34 +430,75 @@ static int assem_pass1(void)
                 extdef_table[i] = NULL;
             }
         }
-
+        if(strcmp(tk->operator, "EXTDEF") == 0){
+            // 피연산자 추출 후 extdef_table에 넣음
+            extdef_index = sep_by_comma(tk->operand[0], extdef_table, 3);
+        }
+        if(strcmp(tk->operator, "EXTREF") == 0){
+            // 피연산자 추출 후 extref_table에 넣음
+            extref_index = sep_by_comma(tk->operand[0], extref_table, 3);
+        }
+        
         // 심볼 테이블에 추가
         if (tk->label) {
             strcpy(sym_table[sym_index].symbol, tk->label);
             if(strcmp(tk->operator, "EQU") == 0){ //EQU 발견시
-                if(strcmp(tk->operand[0], "*") == 0)
+                if(strcmp(tk->operand[0], "*") == 0){
                     sym_table[sym_index++].addr = locctr;
-                else if(strcmp(tk->operand[0], "EXTREF") == 0){
+                }
+                else {
                     // 피연산자 extract
                     char* operands[2];
-                    extract_operands(tk->operand[0], operands);
+                    int operands_each = 0;
+                    operands_each = extract_operands(tk->operand[0], operands);
                     
-                    // 피연산자 extract 후 피연산자의 정보가 있는지 없는지 확인
-                    // 4월 23일(수) 21시 20분
-                    for(int i = 0; i < 2; i++){
-                        
+                    // 피연산자 extract 후 피연산자의 정보가 extref_table에 있는지 없는지 확인
+                    // 있다면 00000으로 채우고 없다면 symtable을 보고 넣어야 함
+                    int count_isin = 0;
+                    for(int i = 0; i < operands_each; i++){
+                        if(is_in_extref_list(operands[i]) == 0)
+                            count_isin += 1;
                     }
+                    if(count_isin > 0){
+                        sym_table[sym_index++].addr = 00000;
+                    }
+                    else{
+                        int temp_list[operands_each];
+                        int b = 0;
+                        // temp_list에 operands의 값을 각각 넣는다. 왜냐하면 symtable에 있다는 뜻은 계산해서 넣을 수 있다는 것이니까!
+                        for(int i = 0; i < sym_index; i++){
+                            for(int j = 0; j < operands_each; j++){
+                                if(strcmp(sym_table[i].symbol, operands[j]) == 0){
+                                    temp_list[b++] = sym_table[i].addr;
+                                }
+                            }
+                        }
+                        // temp_list가 완성되면 num_operator에 들어있는 것을 활용하여 계산하면 됨
+                        
+                        if(num_operator){
+                            int sum = 0;
+                            switch (num_operator) {
+                                case '+':
+                                    sum = temp_list[b - 1] + temp_list[b - 2];
+                                    break;
+                                case '-':
+                                    sum = temp_list[b - 1] - temp_list[b - 2];
+                                    break;
+                                default:
+                                    break;
+                            }
+                            printf("%04X", sum);
+                            
+                            sym_table[sym_index++].addr = sum;
+                        }
+                        else
+                            sym_table[sym_index++].addr = temp_list[0];
+                    }
+                    
                 }
             }
-            if(strcmp(tk->operator, "EXTDEF") == 0){
-                // 피연산자 추출 후 extdef_table에 넣음
-                sep_by_comma(tk->operand[0], extdef_table, 3);
-            }
-            if(strcmp(tk->operator, "EXTREF") == 0){
-                // 피연산자 추출 후 extref_table에 넣음
-                sep_by_comma(tk->operand[0], extref_table, 3);
-            }
-            
+            else
+                sym_table[sym_index++].addr = locctr;
         }
 
             // 리터럴 발견 시 리터럴 테이블에 등록
@@ -458,6 +520,7 @@ static int assem_pass1(void)
         }
         // 디버깅과 중간 점검을 위해 배치
         printf("%s, %s, %04X \n", tk->label, tk->operator, locctr);
+        tk->loc = locctr;
 
         int idx = search_opcode(tk->operator);
         if (idx >= 0) {
@@ -487,9 +550,46 @@ static int assem_pass1(void)
                 int add_2 = atoi(tk->operand[0]) * 3;
                 locctr += add_2;
             }
-            if((strcmp("Byte", tk->operator)) == 0){
-                int add_3 = (strlen(tk->operand[0]) - 3);
+            if((strcmp("BYTE", tk->operator)) == 0){
+                long add_3 = (strlen(tk->operand[0]) - 3) / 2;
                 locctr += add_3;
+            }
+            if((strcmp("WORD", tk->operator)) == 0){
+                if(is_numeric(tk->operand[0]) == 0){
+                    char* operands[2];
+                    int operands_each = 0;
+                    operands_each = extract_operands(tk->operand[0], operands);
+                    
+                    int temp_list[operands_each];
+                    int b = 0;
+                    // temp_list에 operands의 값을 각각 넣는다. 왜냐하면 symtable에 있다는 뜻은 계산해서 넣을 수 있다는 것이니까!
+                    for(int i = 0; i < sym_index; i++){
+                        for(int j = 0; j < operands_each; j++){
+                            if(strcmp(sym_table[i].symbol, operands[j]) == 0){
+                                temp_list[b++] = sym_table[i].addr;
+                            }
+                        }
+                    }
+                    // temp_list가 완성되면 num_operator에 들어있는 것을 활용하여 계산하면 됨
+                    
+                    if(num_operator){
+                        int sum = 0;
+                        switch (num_operator) {
+                            case '+':
+                                sum = temp_list[b - 1] + temp_list[b - 2];
+                                break;
+                            case '-':
+                                sum = temp_list[b - 1] - temp_list[b - 2];
+                                break;
+                            default:
+                                break;
+                        }
+                        printf("%04X", sum);
+                        locctr += sum*3;
+                    }
+                    locctr += temp_list[0]*3;
+                }
+                
             }
         }
     }
@@ -507,10 +607,23 @@ static int assem_pass1(void)
         }
     }
     
+    
+    
     // print
+    // symtab
+    for(int i = 0; i < sym_index; i++) {
+        if(strcmp(sym_table[i].symbol, "RDREC") == 0 || strcmp(sym_table[i].symbol, "WRREC") == 0)
+            printf("\n");
+        if(strcmp(sym_table[i].symbol, "END") == 0){
+            break;
+        }
+        printf("%s\t%04X\n",  sym_table[i].symbol, sym_table[i].addr);
+    }
+    
+    printf("\n\n\n");
+    
     for(int i = 0; i < literal_index; i++) {
-        if(literal_table[i].literal)
-            printf("%s, %04X \n", literal_table[i].literal, literal_table[i].addr);
+        printf("%s\t%04X\n", literal_table[i].literal, literal_table[i].addr);
     }
     
     return 0;
@@ -530,7 +643,7 @@ static int assem_pass1(void)
 */
 void make_opcode_output(char *file_name)
 {
-
+    
 }
 
 /* ----------------------------------------------------------------------------------
@@ -564,8 +677,11 @@ void make_symtab_output(char *file_name)
     fprintf(fp, "-----------------------------\n");
     
     for(int i = 0; i < sym_index; i++) {
-        if(strcmp(sym_table[i].symbol, "RDREC") == 0 || strcmp(sym_table[i].symbol, "WRREC") == 0 )
+        if(strcmp(sym_table[i].symbol, "RDREC") == 0 || strcmp(sym_table[i].symbol, "WRREC") == 0 || strcmp(sym_table[i].symbol, "END") == 0)
             fprintf(fp, "\n");
+        if(strcmp(sym_table[i].symbol, "END") == 0){
+            break;
+        }
         fprintf(fp, "%s\t%04X\n",  sym_table[i].symbol, sym_table[i].addr);
     }
      
@@ -587,6 +703,29 @@ void make_symtab_output(char *file_name)
 void make_literaltab_output(char* file_name)
 {
    /* add your code here */
+    FILE* fp;
+
+        // 파일명이 NULL이거나 비어 있으면 stdout으로 출력
+        if (file_name == NULL || strlen(file_name) == 0) {
+            fp = stdout;
+        } else {
+            fp = fopen(file_name, "w");
+            if (fp == NULL) {
+                perror("파일 열기 실패");
+                return;
+            }
+        }
+
+        fprintf(fp, "Literal\tAddress\n");
+        fprintf(fp, "-------------------\n");
+
+        for (int i = 0; i < literal_index; i++) {
+            fprintf(fp, "%s\t%04X\n", literal_table[i].literal, literal_table[i].addr);
+        }
+
+        if (fp != stdout) {
+            fclose(fp);
+        }
 }
 
 /* ----------------------------------------------------------------------------------
@@ -599,13 +738,91 @@ void make_literaltab_output(char* file_name)
 * 주의 :
 * -----------------------------------------------------------------------------------
 */
-/*
+// nixbpe를 결정하는 함수
+void set_nixbpe(token* tk, int token_idx) {
+    int idx = search_opcode(tk->operator);
+    if (idx < 0) return;
+
+    inst* inst_info = inst_table[idx];
+    tk->nixbpe = 0;
+
+    if (inst_info->format == 1 || inst_info->format == 2) {
+        return;
+    }
+
+    // 주소 모드 설정: n/i
+    if (tk->operand[0] && tk->operand[0][0] == '@') {
+        tk->nixbpe |= 0b100000;  // n=1
+    } else if (tk->operand[0] && tk->operand[0][0] == '#') {
+        tk->nixbpe |= 0b010000;  // i=1
+    } else {
+        tk->nixbpe |= 0b110000;  // n=1, i=1
+    }
+
+    // x=1 (indexed addressing)
+    if (tk->operand[1] && strcmp(tk->operand[1], "X") == 0) {
+        tk->nixbpe |= 0b001000;
+    }
+
+    // extended format (format 4)
+    if (tk->operator[0] == '+') {
+        tk->nixbpe |= 0b000001;  // e=1
+        return;
+    }
+
+    // PC-relative 우선 적용
+    int target_addr = -1;
+    if (tk->operand[0]) {
+        char* operand = tk->operand[0];
+        if (operand[0] == '#' || operand[0] == '@') operand++;
+
+        for (int j = 0; j < sym_index; j++) {
+            if (strcmp(sym_table[j].symbol, operand) == 0) {
+                target_addr = sym_table[j].addr;
+                break;
+            }
+        }
+    }
+
+    int PC = -1;
+    if (token_idx + 1 < token_line) {
+        for (int k = token_idx + 1; k < token_line; k++) {
+            if (token_table[k]->operator) {
+                PC = token_table[k]->loc;
+                break;
+            }
+        }
+    }
+
+    if (target_addr != -1 && PC != -1) {
+        int disp = target_addr - PC;
+        if (disp >= -2048 && disp <= 2047) {
+            tk->nixbpe |= 0b000010;  // p=1
+        } else {
+            int base = 0;  // base는 추후 설정 필요
+            disp = target_addr - base;
+            if (disp >= 0 && disp <= 4095) {
+                tk->nixbpe |= 0b000100;  // b=1
+            }
+        }
+    }
+}
+
 static int assem_pass2(void)
 {
+    for (int i = 0; i < token_line; i++) {
+        token* tk = token_table[i];
+        if (!tk->operator) continue;
+        set_nixbpe(tk, i);
 
-
+        // 디버깅 출력 (2진수)
+        printf("[%2d] %-6s %-10s nixbpe: ", i, tk->operator, tk->operand[0] ? tk->operand[0] : "");
+        for (int b = 5; b >= 0; b--) printf("%d", (tk->nixbpe >> b) & 1);
+        printf("\n");
+        printf("%04X\n",tk->loc);
+    }
+    return 0;
 }
-*/
 
 /* ----------------------------------------------------------------------------------
 * 설명 : 입력된 문자열의 이름을 가진 파일에 프로그램의 결과를 저장하는 함수이다.

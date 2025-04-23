@@ -44,6 +44,7 @@ typedef struct _token
    char* operand[MAX_OPERAND];
    char comment[100];
    char nixbpe;
+    int loc ;
 } token;
 
 token* token_table[MAX_LINES];
@@ -89,7 +90,12 @@ typedef struct _object_code {
 
 // EXTDEF, EXTREF 저장
 char* extdef_table[MAX_OPERAND];
+int extdef_index;
 char* extref_table[MAX_OPERAND];
+int extref_index;
+
+// 연산자 저장(-,+,*,/)
+char num_operator;
 
 static int locctr;
 //--------------
