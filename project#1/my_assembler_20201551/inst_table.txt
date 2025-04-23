@@ -5,6 +5,7 @@ AND     3   40  2
 COMP    3   28  2
 COMPF   3   88  2
 COMPR   2   A0  2
+CLEAR	2   B4  2
 DIV     3   24  2
 DIVF    3   64  2
 DIVR    2   9C  2

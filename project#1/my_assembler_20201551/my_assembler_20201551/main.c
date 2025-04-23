@@ -15,6 +15,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <fcntl.h>
+#include <ctype.h>
 
 // 파일명의 "00000000"은 자신의 학번으로 변경할 것.
 #include "my_assembler_20201551.h"
@@ -42,8 +43,8 @@ int main(int args, char *arg[])
    }
 
 
-   /*make_symtab_output("output_symtab.txt");
-   make_literaltab_output("output_littab.txt");
+   make_symtab_output("output_symtab.txt");
+    /*make_literaltab_output("output_littab.txt");
    if (assem_pass2() < 0)
    {
       printf(" assem_pass2: 패스2 과정에서 실패하였습니다.  \n");
@@ -319,6 +320,65 @@ int search_opcode(char *str)
 *
 * -----------------------------------------------------------------------------------
 */
+// extref에 있는지 확인하는 함수
+int is_in_extref_list(const char* value) {
+    for (int i = 0; i < MAX_OPERAND; i++) {
+        if (strcmp(value, extref_table[i]) == 0) {
+            return 0;  // 있음
+        }
+    }
+    return -1;  // 없음
+}
+// extdef에 있는지 확인하는 함수
+int is_in_extdef_list(const char* value){
+    for(int i = 0; i < MAX_OPERAND; i++) {
+        if(strcmp(value, extdef_table[i]) == 0){
+            return 0; // 있음
+        }
+    }
+    return -1; // 없음
+}
+// EQU에서 피연산자를 추출하는 함수
+int extract_operands(char* expr, char* operands[2]){
+    const char* pos = strpbrk(expr, "+-*/");
+    
+    if(!pos){
+        // 연산자가 없으니 operand가 하나
+        operands[0] = strdup(expr);
+        operands[1] = strdup(NULL);
+    }
+    
+    // 연산자가 있으면 operand가 2개 이상(여기선 최대 2개라고 가정)
+    long len_left = pos - expr;
+    operands[0] = (char*)malloc(len_left+1);
+    strncpy(operands[0], expr, len_left);
+    operands[0][len_left] = '\0';
+    
+    operands[1] = strdup(pos + 1);
+    return 2;
+}
+// 문자열에서 쉼표로 구분된 토큰을 추출해 배열에 저장
+int sep_by_comma(char* line, char* output[], int max_symbols) {
+    char buffer[256];
+    strncpy(buffer, line, sizeof(buffer));
+    buffer[sizeof(buffer) - 1] = '\0';
+
+    char* token = strtok(buffer, ",");
+    int count = 0;
+
+    while (token != NULL && count < max_symbols) {
+        while (isspace((unsigned char)*token)) token++; // 앞 공백 제거
+
+        output[count] = (char*)malloc(strlen(token) + 1);
+        strcpy(output[count], token);
+        count++;
+
+        token = strtok(NULL, ",");
+    }
+
+    return count; // 실제 저장된 심볼 수
+}
+//----------------------------------------------------------//
 static int assem_pass1(void)
 {
    /* add your code here */
@@ -326,8 +386,8 @@ static int assem_pass1(void)
    /* input_data의 문자열을 한줄씩 입력 받아서
     * token_parsing()을 호출하여 _token에 저장
     */
-    int literal_index = 0;
-    int sym_index = 0;// 리터럴 테이블에 리터럴이 몇 개 들어있는지 확인하기 위함
+    literal_index = 0;
+    sym_index = 0;// 리터럴 테이블에 리터럴이 몇 개 들어있는지 확인하기 위함
     int ltorg_check = 0; // 리터럴 테이블에서 어디까지 주소가 배정되었는지 확인하기 위함
     token_line = 0;
     locctr = 0;
@@ -339,13 +399,44 @@ static int assem_pass1(void)
             return -1;
         }
         token* tk = token_table[token_line - 1];
-        // 디버깅할려고 내가 적어놓은겅미
-    
+        
+        // 여기서 locctr이 Control Section을 만나면 0으로 초기화 된다.
+        // extdef와 extref도 함께 초기화 된다.
+        if((strcmp(tk->operator, "CSECT")) == 0){
+            locctr = 0;
+            for(int i = 0; i < MAX_OPERAND; i++){
+                extref_table[i] = NULL;
+                extdef_table[i] = NULL;
+            }
+        }
 
         // 심볼 테이블에 추가
         if (tk->label) {
             strcpy(sym_table[sym_index].symbol, tk->label);
-            sym_table[sym_index++].addr = locctr;
+            if(strcmp(tk->operator, "EQU") == 0){ //EQU 발견시
+                if(strcmp(tk->operand[0], "*") == 0)
+                    sym_table[sym_index++].addr = locctr;
+                else if(strcmp(tk->operand[0], "EXTREF") == 0){
+                    // 피연산자 extract
+                    char* operands[2];
+                    extract_operands(tk->operand[0], operands);
+                    
+                    // 피연산자 extract 후 피연산자의 정보가 있는지 없는지 확인
+                    // 4월 23일(수) 21시 20분
+                    for(int i = 0; i < 2; i++){
+                        
+                    }
+                }
+            }
+            if(strcmp(tk->operator, "EXTDEF") == 0){
+                // 피연산자 추출 후 extdef_table에 넣음
+                sep_by_comma(tk->operand[0], extdef_table, 3);
+            }
+            if(strcmp(tk->operator, "EXTREF") == 0){
+                // 피연산자 추출 후 extref_table에 넣음
+                sep_by_comma(tk->operand[0], extref_table, 3);
+            }
+            
         }
 
             // 리터럴 발견 시 리터럴 테이블에 등록
@@ -365,6 +456,7 @@ static int assem_pass1(void)
                 }
             }
         }
+        // 디버깅과 중간 점검을 위해 배치
         printf("%s, %s, %04X \n", tk->label, tk->operator, locctr);
 
         int idx = search_opcode(tk->operator);
@@ -438,7 +530,7 @@ static int assem_pass1(void)
 */
 void make_opcode_output(char *file_name)
 {
-   /* add your code here */
+
 }
 
 /* ----------------------------------------------------------------------------------
@@ -454,6 +546,32 @@ void make_opcode_output(char *file_name)
 void make_symtab_output(char *file_name)
 {
    /* add your code here */
+    FILE *fp;
+     
+    // 파일명이 NULL인 경우 stdout으로 출력
+    if(file_name == NULL || strlen(file_name) == 0)
+    {
+        fp = stdout;
+    } else {
+        fp = fopen(file_name, "w");
+        if (fp == NULL){
+            perror("파일열기실패");
+            return;
+        }
+    }
+     
+    fprintf(fp, "Symbol\taddress\n");
+    fprintf(fp, "-----------------------------\n");
+    
+    for(int i = 0; i < sym_index; i++) {
+        if(strcmp(sym_table[i].symbol, "RDREC") == 0 || strcmp(sym_table[i].symbol, "WRREC") == 0 )
+            fprintf(fp, "\n");
+        fprintf(fp, "%s\t%04X\n",  sym_table[i].symbol, sym_table[i].addr);
+    }
+     
+    if(fp != stdout){
+        fclose(fp);
+    }
 }
 
 /* ----------------------------------------------------------------------------------
@@ -504,5 +622,6 @@ static int assem_pass2(void)
 void make_objectcode_output(char *file_name)
 {
    /* add your code here */
+    
 }
 

@@ -59,6 +59,7 @@ typedef struct _symbol
    char symbol[10];
    int addr;
 } symbol;
+int sym_index;
 
 /*
 * 리터럴을 관리하는 구조체이다.
@@ -72,7 +73,7 @@ typedef struct _literal {
 
 symbol sym_table[MAX_LINES];
 literal literal_table[MAX_LINES];
-
+int literal_index;
 
 /**
  * 오브젝트 코드 전체에 대한 정보를 담는 구조체이다.
@@ -86,6 +87,9 @@ typedef struct _object_code {
    /* add fields */
 } object_code;
 
+// EXTDEF, EXTREF 저장
+char* extdef_table[MAX_OPERAND];
+char* extref_table[MAX_OPERAND];
 
 static int locctr;
 //--------------
