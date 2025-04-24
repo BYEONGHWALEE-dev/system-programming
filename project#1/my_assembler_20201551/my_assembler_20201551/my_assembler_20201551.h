@@ -88,6 +88,7 @@ typedef struct _object_code {
    /* add fields */
 } object_code;
 
+// 개인이 따로 선언한 함수
 // EXTDEF, EXTREF 저장
 char* extdef_table[MAX_OPERAND];
 int extdef_index;
@@ -98,6 +99,30 @@ int extref_index;
 char num_operator;
 
 static int locctr;
+
+// pass2에서 사용할 ext_table
+char* extref_2_table[MAX_OPERAND];
+int extref_2_index;
+
+
+// utility
+void trim(char* str);
+int is_in_direct_list(const char* str);
+int is_in_extref_list(const char* str);
+int is_in_extdef_list(const char* str);
+int is_in_extdef_2_list(const char* str);
+int extract_operands(char* str, char* str_2[]);
+int is_numeric(char* str);
+void update_ext_tables_on_directives(token* token);
+void set_nixbpe(token* token, int integer);
+int get_register_number(const char* str);
+char* generate_object_code(token* token);
+int generate_literal_object_int(const char* str);
+void append_literal_to_text_buffer(char* buffer, int* buffer_len, int* record_start, int addr, const char* literal);
+void generate_text_record(FILE* fp, int start_idx, int end_idx);
+void generate_modification_records(FILE* fp, int start_idx, int end_idx);
+
+// Given
 //--------------
 
 static char* input_file;
@@ -108,7 +133,6 @@ int init_input_file(char* input_file);
 int token_parsing(char* str);
 int search_opcode(char* str);
 static int assem_pass1(void);
-void make_opcode_output(char* file_name);
 
 void make_literaltab_output(char* file_name);
 void make_symtab_output(char* file_name);

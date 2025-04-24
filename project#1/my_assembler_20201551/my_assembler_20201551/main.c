@@ -52,14 +52,36 @@ int main(int args, char *arg[])
       return -1;
    }
 
-   // make_objectcode_output("output_objectcode.txt");
+    make_objectcode_output(NULL);
    
    return 0;
 }
-
+// 개별로 만든 함수
 // 토큰에 개행 문자를 모두 삭제하고 테이블에 넣도록 하기 위해 만듦
 void trim(char* s) {
     s[strcspn(s, "\n\r\t ")] = '\0';  // 앞에서 처음 나오는 특수문자 위치를 '\0' 처리
+}
+
+// 문자열에서 쉼표로 구분된 토큰을 추출해 배열에 저장
+int sep_by_comma(char* line, char* output[], int max_symbols) {
+    char buffer[256];
+    strncpy(buffer, line, sizeof(buffer));
+    buffer[sizeof(buffer) - 1] = '\0';
+
+    char* token = strtok(buffer, ",");
+    int count = 0;
+
+    while (token != NULL && count < max_symbols) {
+        while (isspace((unsigned char)*token)) token++; // 앞 공백 제거
+
+        output[count] = (char*)malloc(strlen(token) + 1);
+        strcpy(output[count], token);
+        count++;
+
+        token = strtok(NULL, ",");
+    }
+
+    return count; // 실제 저장된 심볼 수
 }
 
 /* ----------------------------------------------------------------------------------
@@ -258,6 +280,8 @@ int token_parsing(char *str)
     int is_label = (opcode_idx < 0 && direct_idx < 0); // 명령어가 아니면 label 취급
     
     
+    
+    
     if (is_label) {
         t->label = strdup(tok_list[0]);
         if (count > 1) t->operator = strdup(tok_list[1]);
@@ -330,6 +354,15 @@ int is_in_extref_list(const char* value) {
     }
     return -1;  // 없음
 }
+// extref_2에 있는지 확인하는 함수
+int is_in_extref_2_list(const char* value) {
+    for (int i = 0; i < extref_2_index; i++) {
+        if (strcmp(value, extref_2_table[i]) == 0) {
+            return 0;  // 있음
+        }
+    }
+    return -1;  // 없음
+}
 // extdef에 있는지 확인하는 함수
 int is_in_extdef_list(const char* value){
     for(int i = 0; i < MAX_OPERAND; i++) {
@@ -360,27 +393,6 @@ int extract_operands(char* expr, char* operands[2]){
     operands[1] = strdup(pos + 1);
     return 2;
 }
-// 문자열에서 쉼표로 구분된 토큰을 추출해 배열에 저장
-int sep_by_comma(char* line, char* output[], int max_symbols) {
-    char buffer[256];
-    strncpy(buffer, line, sizeof(buffer));
-    buffer[sizeof(buffer) - 1] = '\0';
-
-    char* token = strtok(buffer, ",");
-    int count = 0;
-
-    while (token != NULL && count < max_symbols) {
-        while (isspace((unsigned char)*token)) token++; // 앞 공백 제거
-
-        output[count] = (char*)malloc(strlen(token) + 1);
-        strcpy(output[count], token);
-        count++;
-
-        token = strtok(NULL, ",");
-    }
-
-    return count; // 실제 저장된 심볼 수
-}
 // 문자열이 숫자인지 아닌지 확인하는 함수
 int is_numeric(char* str) {
     if (str == NULL || *str == '\0') return 0;  // 빈 문자열 또는 NULL은 숫자 아님
@@ -395,6 +407,17 @@ int is_numeric(char* str) {
     }
 
     return 1;  // 모두 숫자면 true
+}
+//
+void update_ext_tables_on_directives(token* tk) {
+    if (strcmp(tk->operator, "EXTDEF") == 0) {
+        for (int i = 0; i < MAX_OPERAND; i++) extdef_table[i] = NULL;
+        extdef_index = sep_by_comma(tk->operand[0], extdef_table, MAX_OPERAND);
+    }
+    if (strcmp(tk->operator, "EXTREF") == 0) {
+        for (int i = 0; i < MAX_OPERAND; i++) extref_table[i] = NULL;
+        extref_index = sep_by_comma(tk->operand[0], extref_table, MAX_OPERAND);
+    }
 }
 //----------------------------------------------------------//
 static int assem_pass1(void)
@@ -420,16 +443,11 @@ static int assem_pass1(void)
             return -1;
         }
         token* tk = token_table[token_line - 1];
+        update_ext_tables_on_directives(tk);
         
         // 여기서 locctr이 Control Section을 만나면 0으로 초기화 된다.
-        // extdef와 extref도 함께 초기화 된다.
         if((strcmp(tk->operator, "CSECT")) == 0){
-            locctr = 0;
-            for(int i = 0; i < MAX_OPERAND; i++){
-                extref_table[i] = NULL;
-                extdef_table[i] = NULL;
-            }
-        }
+            locctr = 0;}
         if(strcmp(tk->operator, "EXTDEF") == 0){
             // 피연산자 추출 후 extdef_table에 넣음
             extdef_index = sep_by_comma(tk->operand[0], extdef_table, 3);
@@ -519,7 +537,7 @@ static int assem_pass1(void)
             }
         }
         // 디버깅과 중간 점검을 위해 배치
-        printf("%s, %s, %04X \n", tk->label, tk->operator, locctr);
+        printf("%s, %s, %s, %s \n", tk->label, tk->operator, tk->operand[0], tk->operand[1]);
         tk->loc = locctr;
 
         int idx = search_opcode(tk->operator);
@@ -626,24 +644,9 @@ static int assem_pass1(void)
         printf("%s\t%04X\n", literal_table[i].literal, literal_table[i].addr);
     }
     
-    return 0;
-}
 
-/* ----------------------------------------------------------------------------------
-* 설명 : 입력된 문자열의 이름을 가진 파일에 프로그램의 결과를 저장하는 함수이다.
-*
-* 매계 : 생성할 오브젝트 파일명
-* 반환 : 없음
-* 주의 : 소스코드 명령어 앞에 OPCODE가 기록된 코드를 파일에 출력한다.
-*        파일이 NULL값이 들어온다면 프로그램의 결과를 stdout으로 보내어
-*        화면에 출력해준다.
-*        프로젝트 1에서는 불필요하다.
- *
-* -----------------------------------------------------------------------------------
-*/
-void make_opcode_output(char *file_name)
-{
-    
+    return 0;
+
 }
 
 /* ----------------------------------------------------------------------------------
@@ -750,59 +753,355 @@ void set_nixbpe(token* tk, int token_idx) {
         return;
     }
 
-    // 주소 모드 설정: n/i
     if (tk->operand[0] && tk->operand[0][0] == '@') {
-        tk->nixbpe |= 0b100000;  // n=1
+        tk->nixbpe |= 0b100000;
     } else if (tk->operand[0] && tk->operand[0][0] == '#') {
-        tk->nixbpe |= 0b010000;  // i=1
+        tk->nixbpe |= 0b010000;
     } else {
-        tk->nixbpe |= 0b110000;  // n=1, i=1
+        tk->nixbpe |= 0b110000;
     }
 
-    // x=1 (indexed addressing)
-    if (tk->operand[1] && strcmp(tk->operand[1], "X") == 0) {
-        tk->nixbpe |= 0b001000;
+    int is_format4 = (tk->operator[0] == '+');
+    if(is_format4){
+        tk->nixbpe |= 0b000001;
     }
-
-    // extended format (format 4)
-    if (tk->operator[0] == '+') {
-        tk->nixbpe |= 0b000001;  // e=1
-        return;
-    }
-
-    // PC-relative 우선 적용
-    int target_addr = -1;
-    if (tk->operand[0]) {
-        char* operand = tk->operand[0];
-        if (operand[0] == '#' || operand[0] == '@') operand++;
-
-        for (int j = 0; j < sym_index; j++) {
-            if (strcmp(sym_table[j].symbol, operand) == 0) {
-                target_addr = sym_table[j].addr;
-                break;
-            }
-        }
-    }
-
-    int PC = -1;
-    if (token_idx + 1 < token_line) {
-        for (int k = token_idx + 1; k < token_line; k++) {
-            if (token_table[k]->operator) {
-                PC = token_table[k]->loc;
-                break;
-            }
-        }
-    }
-
-    if (target_addr != -1 && PC != -1) {
-        int disp = target_addr - PC;
-        if (disp >= -2048 && disp <= 2047) {
-            tk->nixbpe |= 0b000010;  // p=1
+    
+    // 리스트의 마지막이 X임을 찾기 위함
+    unsigned long len = strlen(tk->operand[0]);
+    if (tk->operand[1] && tk->operand[0][len - 1] == 'X') {
+        tk->nixbpe |= 0b001000;  // x=1
+        if (is_format4) {
+            tk->nixbpe |= 0b110001;
         } else {
-            int base = 0;  // base는 추후 설정 필요
-            disp = target_addr - base;
-            if (disp >= 0 && disp <= 4095) {
-                tk->nixbpe |= 0b000100;  // b=1
+            int target_addr = -1;
+            if (tk->operand[0]) {
+                char* operand = tk->operand[0];
+                if (operand[0] == '#' || operand[0] == '@') operand++;
+                for (int j = 0; j < sym_index; j++) {
+                    if (strcmp(sym_table[j].symbol, operand) == 0) {
+                        target_addr = sym_table[j].addr;
+                        break;
+                    }
+                }
+            }
+
+            int PC = -1;
+            if (token_idx + 1 < token_line) {
+                for (int k = token_idx + 1; k < token_line; k++) {
+                    if (token_table[k]->operator) {
+                        PC = token_table[k]->loc;
+                        break;
+                    }
+                }
+            }
+
+            if (target_addr != -1 && PC != -1) {
+                int disp = target_addr - PC;
+                if (disp >= -2048 && disp <= 2047) {
+                    tk->nixbpe |= 0b000010;  // p=1
+                } else {
+                    int base = 0;
+                    disp = target_addr - base;
+                    if (disp >= 0 && disp <= 4095) {
+                        tk->nixbpe |= 0b000100;  // b=1
+                    }
+                }
+            }
+        }
+    } else if (!is_format4) {
+        int target_addr = -1;
+        if (tk->operand[0]) {
+            char* operand = tk->operand[0];
+            if (operand[0] == '#' || operand[0] == '@') operand++;
+            for (int j = 0; j < sym_index; j++) {
+                if (strcmp(sym_table[j].symbol, operand) == 0) {
+                    target_addr = sym_table[j].addr;
+                    break;
+                }
+            }
+        }
+
+        int PC = -1;
+        if (token_idx + 1 < token_line) {
+            for (int k = token_idx + 1; k < token_line; k++) {
+                if (token_table[k]->operator) {
+                    PC = token_table[k]->loc;
+                    break;
+                }
+            }
+        }
+
+        if (target_addr != -1 && PC != -1) {
+            int disp = target_addr - PC;
+            if (disp >= -2048 && disp <= 2047) {
+                tk->nixbpe |= 0b000010;  // p=1
+            } else {
+                int base = 0;
+                disp = target_addr - base;
+                if (disp >= 0 && disp <= 4095) {
+                    tk->nixbpe |= 0b000100;  // b=1
+                }
+            }
+        }
+    }
+}
+// Register get 함수
+int get_register_number(const char* reg) {
+    if (strcmp(reg, "A") == 0) return 0;
+    if (strcmp(reg, "X") == 0) return 1;
+    if (strcmp(reg, "L") == 0) return 2;
+    if (strcmp(reg, "B") == 0) return 3;
+    if (strcmp(reg, "S") == 0) return 4;
+    if (strcmp(reg, "T") == 0) return 5;
+    if (strcmp(reg, "F") == 0) return 6;
+    if (strcmp(reg, "PC") == 0) return 8;
+    if (strcmp(reg, "SW") == 0) return 9;
+    return 0;
+}
+
+// opcode 만드는 함수
+char* generate_object_code(token* tk) {
+    int idx = search_opcode(tk->operator);
+    if (idx >= 0) {
+        inst* inst_info = inst_table[idx];
+
+        if (inst_info->format == 1) {
+            char* obj_str = (char*)malloc(3);
+            sprintf(obj_str, "%02X", inst_info->op);
+            return obj_str;
+        }
+
+        if (inst_info->format == 2) {
+            int r1 = 0, r2 = 0;
+            if (tk->operand[0]) r1 = get_register_number(tk->operand[0]);
+            if (tk->operand[1]) r2 = get_register_number(tk->operand[1]);
+
+            char* obj_str = (char*)malloc(5);
+            sprintf(obj_str, "%02X%1X%1X", inst_info->op, r1, r2);
+            return obj_str;
+        }
+
+        unsigned int opcode = inst_info->op & 0xFC;
+        unsigned int ni = (tk->nixbpe >> 4) & 0x3;
+        unsigned int xbpe = tk->nixbpe & 0xF;
+
+        unsigned int object_code = 0;
+        int target_addr = 0;
+        if (tk->operand[0]) {
+            char* operand = tk->operand[0];
+            if (operand[0] == '#' || operand[0] == '@') operand++;
+
+            for (int i = 0; i < sym_index; i++) {
+                if (strcmp(sym_table[i].symbol, operand) == 0) {
+                    target_addr = sym_table[i].addr;
+                    break;
+                }
+            }
+        }
+
+        if (tk->nixbpe & 0b000001) {
+            object_code = ((opcode | ni) << 24) | ((xbpe << 20) | 0b00000);
+        } else {
+            if(strcmp(tk->operator, "RSUB") == 0){
+                object_code = (opcode | ni) << 16;
+                object_code |= ((xbpe << 12) | 0b000);
+            }
+            else{
+                object_code = (opcode | ni) << 16;
+                int disp = target_addr - tk->loc - 3;
+                object_code |= ((xbpe << 12) | (disp & 0xFFF));
+            }
+        }
+
+        char* obj_str = (char*)malloc(9);
+        sprintf(obj_str, "%06X", object_code);
+        return obj_str;
+    }
+
+    if (strcmp(tk->operator, "WORD") == 0 && tk->operand[0]) {
+        char* obj_str = (char*)malloc(9);
+        int value = atoi(tk->operand[0]);
+        sprintf(obj_str, "%06X", value);
+        return obj_str;
+    }
+
+    if (strcmp(tk->operator, "BYTE") == 0 && tk->operand[0]) {
+        char* obj_str = (char*)malloc(9);
+        if (tk->operand[0][0] == 'X') {
+            strncpy(obj_str, tk->operand[0] + 2, strlen(tk->operand[0]) - 3);
+            obj_str[strlen(tk->operand[0]) - 3] = '\0';
+        } else if (tk->operand[0][0] == 'C') {
+            int len = strlen(tk->operand[0]) - 3;
+            char* lit = tk->operand[0] + 2;
+            obj_str[0] = '\0';
+            for (int i = 0; i < len; i++) {
+                char tmp[3];
+                sprintf(tmp, "%02X", lit[i]);
+                strcat(obj_str, tmp);
+            }
+        }
+        return obj_str;
+    }
+
+    return NULL;
+}
+
+int literal_written[10] = {0};
+
+int generate_literal_object_int(const char* literal) {
+    if (!literal) return -1;
+    int result = 0;
+
+    if (literal[1] == 'X') {
+        sscanf(literal + 3, "%2x", &result);
+    } else if (literal[1] == 'C') {
+        const char* p = literal + 3;
+        for (int i = 0; i < (int)(strlen(literal) - 4); i++) {
+            result <<= 8;
+            result |= (unsigned char)p[i];
+        }
+    }
+    return result;
+}
+
+void append_literal_to_text_buffer(char* buffer, int* buffer_len, int* record_start, int addr, const char* literal) {
+    if (!literal || !buffer || !buffer_len) return;
+
+    char hex[10] = {0};
+    if (literal[1] == 'X') {
+        strncpy(hex, literal + 3, 2);
+        hex[2] = '\0';
+    } else if (literal[1] == 'C') {
+        const char* p = literal + 3;
+        hex[0] = '\0';
+        for (int i = 0; i < (int)(strlen(literal) - 4); i++) {
+            char tmp[3];
+            sprintf(tmp, "%02X", (unsigned char)p[i]);
+            strcat(hex, tmp);
+        }
+    }
+
+    if (*record_start == -1) *record_start = addr;
+
+    strcat(buffer, hex);
+    *buffer_len += strlen(hex);
+
+    for (int l = 0; l < literal_index; l++) {
+        if (strcmp(literal_table[l].literal, literal) == 0) {
+            literal_written[l] = 1;
+            break;
+        }
+    }
+}
+
+void generate_text_record(FILE* fp, int start_idx, int end_idx) {
+    int max_text_len = 60;
+    char buffer[70] = {0};
+    int buffer_len = 0;
+    int record_start = -1;
+
+    for (int i = start_idx; i <= end_idx; i++) {
+        token* tk = token_table[i];
+        if (!tk->operator) continue;
+        
+        if(strcmp(tk->operator, "CSECT") == 0) {
+            extref_2_index = 0;
+            for(int i = 0; i < MAX_OPERAND; i++){
+                extref_2_table[i] = NULL;
+            }
+        }
+
+        if (strcmp(tk->operator, "LTORG") == 0) {
+            for (int l = 0; l < literal_index; l++) {
+                if (!literal_written[l] && literal_table[l].addr >= 0 && literal_table[l].addr >= tk->loc) {
+                    if (buffer_len > 0) {
+                        fprintf(fp, "T%06X%02X%s\n", record_start, buffer_len / 2, buffer);
+                        buffer[0] = '\0';
+                        buffer_len = 0;
+                        record_start = -1;
+                    }
+                    append_literal_to_text_buffer(buffer, &buffer_len, &record_start, literal_table[l].addr, literal_table[l].literal);
+                }
+            }
+            continue;
+        }
+
+        int idx = search_opcode(tk->operator);
+        if (idx < 0 && strcmp(tk->operator, "WORD") != 0 && strcmp(tk->operator, "BYTE") != 0) continue;
+
+        char* obj = generate_object_code(tk);
+        if (!obj) continue;
+
+        if (record_start == -1) record_start = tk->loc;
+
+        if (buffer_len + strlen(obj) > max_text_len) {
+            fprintf(fp, "T%06X%02X%s\n", record_start, buffer_len / 2, buffer);
+            buffer[0] = '\0';
+            buffer_len = 0;
+            record_start = tk->loc;
+        }
+
+        strcat(buffer, obj);
+        buffer_len += strlen(obj);
+        free(obj);
+    }
+
+    for (int l = 0; l < literal_index; l++) {
+        if (!literal_written[l] && literal_table[l].addr != -1) {
+            if (buffer_len + 2 > max_text_len) {
+                fprintf(fp, "T%06X%02X%s\n", record_start, buffer_len / 2, buffer);
+                buffer[0] = '\0';
+                buffer_len = 0;
+                record_start = -1;
+            }
+            if (record_start == -1) record_start = literal_table[l].addr;
+            append_literal_to_text_buffer(buffer, &buffer_len, &record_start, literal_table[l].addr, literal_table[l].literal);
+        }
+    }
+
+    if (buffer_len > 0) {
+        fprintf(fp, "T%06X%02X%s\n", record_start, buffer_len / 2, buffer);
+    }
+}
+// 피연산자 추출
+
+void generate_modification_records(FILE* fp, int start_idx, int end_idx) {
+    for (int i = start_idx; i <= end_idx; i++) {
+        token* tk = token_table[i];
+        if(strcmp(tk->operator, "EXTREF") == 0) {
+           extref_2_index = sep_by_comma(tk->operand[0], extref_2_table, MAX_OPERAND);
+        }
+        
+        if (!tk->operator || tk->operator[0] != '+' && strcmp(tk->operator, "WORD") != 0) continue;
+        printf("%s", tk->operand[0]);
+        for(int i = 0; i < extref_index; i++) {
+            printf("%s", extref_2_table[i]);
+        }
+        if(tk->operand[0]){
+            char* temp_array[MAX_OPERAND];
+            int temp_each;
+            temp_each = sep_by_comma(tk->operand[0], temp_array, MAX_OPERAND);
+            for(int k = 0; k < strlen(tk->operand[0]); k++) {
+                if(tk->operand[0][k] == '-'){
+                    const char* pos = strpbrk(tk->operand[0], "+-*/");
+                    char* operands[2];
+                    num_operator = *pos;
+                    long len_left = pos - tk->operand[0];
+                    operands[0] = (char*)malloc(len_left+1);
+                    strncpy(operands[0], tk->operand[0], len_left);
+                    operands[0][len_left] = '\0';
+                    operands[1] = strdup(pos + 1);
+                    // printf("%s / %s \n", operands[0], operands[1]);
+                    
+                    strcpy(temp_array[0], operands[0]);
+                    strcpy(temp_array[1], operands[1]);
+                }
+            }
+            
+            for(int j = 0; j < temp_each; j++){
+                if(is_in_extref_2_list(temp_array[j]) == 0){
+                    fprintf(fp, "M%06X05+%s\n", tk->loc + 1, temp_array[j]);
+                }
             }
         }
     }
@@ -810,35 +1109,83 @@ void set_nixbpe(token* tk, int token_idx) {
 
 static int assem_pass2(void)
 {
+    // 기계어로 바꾸기 위해 토큰에 nixbpe를 부여한다.
     for (int i = 0; i < token_line; i++) {
         token* tk = token_table[i];
         if (!tk->operator) continue;
         set_nixbpe(tk, i);
-
-        // 디버깅 출력 (2진수)
-        printf("[%2d] %-6s %-10s nixbpe: ", i, tk->operator, tk->operand[0] ? tk->operand[0] : "");
-        for (int b = 5; b >= 0; b--) printf("%d", (tk->nixbpe >> b) & 1);
-        printf("\n");
-        printf("%04X\n",tk->loc);
     }
     return 0;
 }
 
-/* ----------------------------------------------------------------------------------
-* 설명 : 입력된 문자열의 이름을 가진 파일에 프로그램의 결과를 저장하는 함수이다.
-*        여기서 출력되는 내용은 object code이다.
-* 매계 : 생성할 오브젝트 파일명
-* 반환 : 없음
-* 주의 : 파일이 NULL값이 들어온다면 프로그램의 결과를 stdout으로 보내어
-*        화면에 출력해준다.
-*        명세서의 주어진 출력 결과와 완전히 동일해야 한다.
-*        예외적으로 각 라인 뒤쪽의 공백 문자 혹은 개행 문자의 차이는 허용한다.
-*
-* -----------------------------------------------------------------------------------
-*/
-void make_objectcode_output(char *file_name)
-{
-   /* add your code here */
-    
+void make_objectcode_output(char *file_name) {
+    FILE *fp = (file_name == NULL || strlen(file_name) == 0) ? stdout : fopen(file_name, "w");
+    if (fp == NULL) {
+        perror("파일 열기 실패");
+        return;
+    }
+
+    int section_start = 0;
+
+    for (int i = 0; i < token_line;) {
+        token* tk = token_table[i];
+        if (!tk->label || !tk->operator) {
+            i++;
+            continue;
+        }
+
+        char section_name[10];
+        strcpy(section_name, tk->label);
+        section_start = tk->loc;
+
+        int section_end = section_start;
+        int j = i;
+        for (; j < token_line; j++) {
+            if (token_table[j]->operator && strcmp(token_table[j]->operator, "CSECT") == 0 && j != i)
+                break;
+            section_end = token_table[j]->loc;
+        }
+
+        fprintf(fp, "H%-6s%06X%06X\n", section_name, section_start, section_end - section_start);
+
+        int def_count = 0;
+        for (int k = i; k < j; k++) {
+            token* t = token_table[k];
+            if (t->label && is_in_extdef_list(t->label) == 0)
+                def_count++;
+        }
+        if (def_count > 0) {
+            fprintf(fp, "D");
+            for (int k = i; k < j; k++) {
+                token* t = token_table[k];
+                if (t->label && is_in_extdef_list(t->label) == 0)
+                    fprintf(fp, "%-6s%06X", t->label, t->loc);
+            }
+            fprintf(fp, "\n");
+        }
+
+        fprintf(fp, "R");
+        for (int k = i; k < j; k++) {
+            token* t = token_table[k];
+            if (strcmp(t->operator, "EXTREF") == 0) {
+                char* ext_list[MAX_OPERAND];
+                int list_length = sep_by_comma(t->operand[0], ext_list, MAX_OPERAND);
+                for (int i = 0; i < list_length; i++) {
+                    fprintf(fp, "%-6s", ext_list[i]);
+                }
+            }
+        }
+        fprintf(fp, "\n");
+
+        generate_text_record(fp, i, j - 1);
+        generate_modification_records(fp, i, j - 1);
+        fprintf(fp, "E%06X\n\n\n", section_start);
+
+        i = j;
+    }
+
+    if (fp != stdout) fclose(fp);
 }
+
+
 
