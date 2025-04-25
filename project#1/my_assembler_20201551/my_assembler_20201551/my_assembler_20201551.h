@@ -11,6 +11,11 @@
 #define MAX_OBJ_RECORD 100
 #define MAX_RECORD_LEN 100
 
+#define MAX_RECORDS 100
+#define MAX_TEXT_LENGTH 70
+#define MAX_SYMBOLS 50
+#define MAX_NAME_LENGTH 7
+
 
  /*
   * instruction 목록 파일로 부터 정보를 받아와서 생성하는 구조체 변수이다.
@@ -83,10 +88,7 @@ int literal_index;
  * 구조체 변수 하나만으로 object code를 충분히 작성할 수 있도록 구조체를 직접
  * 정의해야 한다.
  */
-
-typedef struct _object_code {
-   /* add fields */
-} object_code;
+ // 이게 있는지 몰랐습니다. 교수님... 레포트 작성할때 알았습니다. 다 뜯어고치자니 시간이 없었습니다.
 
 // 개인이 따로 선언한 함수
 // EXTDEF, EXTREF 저장
@@ -110,7 +112,7 @@ void trim(char* str);
 int is_in_direct_list(const char* str);
 int is_in_extref_list(const char* str);
 int is_in_extdef_list(const char* str);
-int is_in_extdef_2_list(const char* str);
+int is_in_extref_2_list(const char* str);
 int extract_operands(char* str, char* str_2[]);
 int is_numeric(char* str);
 void update_ext_tables_on_directives(token* token);

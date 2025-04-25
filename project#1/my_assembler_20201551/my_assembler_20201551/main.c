@@ -43,8 +43,8 @@ int main(int args, char *arg[])
    }
 
 
-   make_symtab_output("output_symtab.txt");
-   make_literaltab_output("output_littab.txt");
+    make_symtab_output(NULL);
+    make_literaltab_output(NULL);
 
    if (assem_pass2() < 0)
    {
@@ -136,7 +136,7 @@ int init_inst_file(char *inst_file)
         return -1;
     }
     
-    while(fscanf(file, "%s %d %x %d", mnemonic, &format, &opcode, &ops) == 4){
+    while(fscanf(file, "%s %d %x %d", mnemonic, &format, &opcode, &ops) == 4){ // inst_table 파일을 만든다. -> 이건 직접 파일을 만들어야 함.
         if(inst_index >= MAX_INST){
             printf("inst_table의 최대 크기를 초과하였습니다.\n");
             break;
@@ -149,8 +149,9 @@ int init_inst_file(char *inst_file)
             return -1;
         }
         
+        // 한줄 씩 Instruction을 읽고 new_inst라는 객체 안에 mnemonic, format, op, ops로 저장한다.
         strcpy(new_inst->str, mnemonic);
-        new_inst->format = format;
+        new_inst->format = format; //
         new_inst->op = (unsigned char)opcode;
         new_inst->ops = ops;
         
@@ -505,7 +506,7 @@ static int assem_pass1(void)
                                 default:
                                     break;
                             }
-                            printf("%04X", sum);
+                      
                             
                             sym_table[sym_index++].addr = sum;
                         }
@@ -536,8 +537,7 @@ static int assem_pass1(void)
                 }
             }
         }
-        // 디버깅과 중간 점검을 위해 배치
-        printf("%s, %s, %s, %s \n", tk->label, tk->operator, tk->operand[0], tk->operand[1]);
+     
         tk->loc = locctr;
 
         int idx = search_opcode(tk->operator);
@@ -602,7 +602,6 @@ static int assem_pass1(void)
                             default:
                                 break;
                         }
-                        printf("%04X", sum);
                         locctr += sum*3;
                     }
                     locctr += temp_list[0]*3;
@@ -625,24 +624,6 @@ static int assem_pass1(void)
         }
     }
     
-    
-    
-    // print
-    // symtab
-    for(int i = 0; i < sym_index; i++) {
-        if(strcmp(sym_table[i].symbol, "RDREC") == 0 || strcmp(sym_table[i].symbol, "WRREC") == 0)
-            printf("\n");
-        if(strcmp(sym_table[i].symbol, "END") == 0){
-            break;
-        }
-        printf("%s\t%04X\n",  sym_table[i].symbol, sym_table[i].addr);
-    }
-    
-    printf("\n\n\n");
-    
-    for(int i = 0; i < literal_index; i++) {
-        printf("%s\t%04X\n", literal_table[i].literal, literal_table[i].addr);
-    }
     
 
     return 0;
@@ -948,22 +929,6 @@ char* generate_object_code(token* tk) {
 
 int literal_written[10] = {0};
 
-int generate_literal_object_int(const char* literal) {
-    if (!literal) return -1;
-    int result = 0;
-
-    if (literal[1] == 'X') {
-        sscanf(literal + 3, "%2x", &result);
-    } else if (literal[1] == 'C') {
-        const char* p = literal + 3;
-        for (int i = 0; i < (int)(strlen(literal) - 4); i++) {
-            result <<= 8;
-            result |= (unsigned char)p[i];
-        }
-    }
-    return result;
-}
-
 void append_literal_to_text_buffer(char* buffer, int* buffer_len, int* record_start, int addr, const char* literal) {
     if (!literal || !buffer || !buffer_len) return;
 
@@ -1013,7 +978,7 @@ void generate_text_record(FILE* fp, int start_idx, int end_idx) {
 
         if (strcmp(tk->operator, "LTORG") == 0) {
             for (int l = 0; l < literal_index; l++) {
-                if (!literal_written[l] && literal_table[l].addr >= 0 && literal_table[l].addr >= tk->loc) {
+                if (!literal_written[l] && literal_table[l].addr >= 0 && literal_table[l].addr < tk->loc) {
                     if (buffer_len > 0) {
                         fprintf(fp, "T%06X%02X%s\n", record_start, buffer_len / 2, buffer);
                         buffer[0] = '\0';
@@ -1063,22 +1028,20 @@ void generate_text_record(FILE* fp, int start_idx, int end_idx) {
         fprintf(fp, "T%06X%02X%s\n", record_start, buffer_len / 2, buffer);
     }
 }
-// 피연산자 추출
 
 void generate_modification_records(FILE* fp, int start_idx, int end_idx) {
     for (int i = start_idx; i <= end_idx; i++) {
         token* tk = token_table[i];
+        char* temp_array[MAX_OPERAND];
+        
         if(strcmp(tk->operator, "EXTREF") == 0) {
            extref_2_index = sep_by_comma(tk->operand[0], extref_2_table, MAX_OPERAND);
         }
         
+        
         if (!tk->operator || tk->operator[0] != '+' && strcmp(tk->operator, "WORD") != 0) continue;
-        printf("%s", tk->operand[0]);
-        for(int i = 0; i < extref_index; i++) {
-            printf("%s", extref_2_table[i]);
-        }
         if(tk->operand[0]){
-            char* temp_array[MAX_OPERAND];
+            
             int temp_each;
             temp_each = sep_by_comma(tk->operand[0], temp_array, MAX_OPERAND);
             for(int k = 0; k < strlen(tk->operand[0]); k++) {
@@ -1095,8 +1058,11 @@ void generate_modification_records(FILE* fp, int start_idx, int end_idx) {
                     
                     strcpy(temp_array[0], operands[0]);
                     strcpy(temp_array[1], operands[1]);
+                    break;
                 }
+            
             }
+            
             
             for(int j = 0; j < temp_each; j++){
                 if(is_in_extref_2_list(temp_array[j]) == 0){
@@ -1114,7 +1080,10 @@ static int assem_pass2(void)
         token* tk = token_table[i];
         if (!tk->operator) continue;
         set_nixbpe(tk, i);
+        generate_object_code(tk);
     }
+    
+    
     return 0;
 }
 
@@ -1186,6 +1155,4 @@ void make_objectcode_output(char *file_name) {
 
     if (fp != stdout) fclose(fp);
 }
-
-
 
