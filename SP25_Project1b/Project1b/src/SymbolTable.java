@@ -5,8 +5,8 @@ import java.util.ArrayList;
  * section 별로 하나씩 인스턴스를 할당한다.
  */
 public class SymbolTable {
-	ArrayList<String> symbolList;
-	ArrayList<Integer> locationList;
+	ArrayList<String> symbolList = new ArrayList<>();
+	ArrayList<Integer> locationList = new ArrayList<>();
 	
 	/**
 	 * 새로운 Symbol을 table에 추가한다.
@@ -17,7 +17,10 @@ public class SymbolTable {
 	 * 매칭되는 주소값의 변경은 modifySymbol()을 통해서 이루어져야 한다.
 	 */
 	public void putSymbol(String symbol, int location) {
-		
+		if(symbolList != null) {
+			symbolList.add(symbol);
+			locationList.add(location);
+		}
 	}
 	
 	/**

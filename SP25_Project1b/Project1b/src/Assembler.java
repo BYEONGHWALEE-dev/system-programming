@@ -1,7 +1,6 @@
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
+import jdk.jshell.execution.Util;
+
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -34,12 +33,17 @@ public class Assembler {
 	/** 프로그램의 section별로 symbol table을 저장하는 공간*/
 	ArrayList<SymbolTable> symtabList;
 	/** 프로그램의 section별로 프로그램을 저장하는 공간*/
-	ArrayList<TokenTable> TokenList;
+	ArrayList<TokenTable> tokenList;
 	/** 
 	 * Token, 또는 지시어에 따라 만들어진 오브젝트 코드들을 출력 형태로 저장하는 공간. <br>
 	 * 필요한 경우 String 대신 별도의 클래스를 선언하여 ArrayList를 교체해도 무방함.
 	 */
 	ArrayList<String> codeList;
+
+	/**
+	 * Literal을 저장할 공간, SECTION 별로 나누지 않을 것
+	 */
+	LiteralTable literalTable = new LiteralTable();
 	
 	/**
 	 * 클래스 초기화. instruction Table을 초기화와 동시에 세팅한다.
@@ -50,7 +54,7 @@ public class Assembler {
 		instTable = new InstTable(instFile);
 		lineList = new ArrayList<String>();
 		symtabList = new ArrayList<SymbolTable>();
-		TokenList = new ArrayList<TokenTable>();
+		tokenList = new ArrayList<TokenTable>();
 		codeList = new ArrayList<String>();
 	}
 
@@ -60,7 +64,6 @@ public class Assembler {
 	public static void main(String[] args) {
 		Assembler assembler = new Assembler("assets/inst_table.txt");
 		assembler.loadInputFile("assets/input.txt");
-
 
 		assembler.pass1();
 		assembler.printSymbolTable("output_symtab.txt");
@@ -97,7 +100,17 @@ public class Assembler {
 	 */
 	private void printSymbolTable(String fileName) {
 		// TODO Auto-generated method stub
-
+		try(BufferedWriter writer = new BufferedWriter(new FileWriter(fileName, false))){
+			for(int i = 0; i < symtabList.size(); i++) {
+				for(int j = 0; j < symtabList.get(i).symbolList.size(); j++) {
+					System.out.println(symtabList.get(i).symbolList.get(j));
+					System.out.printf("%04X\n", symtabList.get(i).locationList.get(j));
+					writer.write(symtabList.get(i).symbolList.get(j));
+				}
+			}
+		}catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -126,18 +139,53 @@ public class Assembler {
 			String line = lineList.get(i);
 			if(line.startsWith(".")){continue;} // .로 시작하면 Pass
 
-            tokenTable.putToken(line);
+            tokenTable.putToken(line); //token으로 넣음
 			Token token = tokenTable.getToken(tokenTable.tokenTableIndex++); // 토큰을 가져온다. 1: Literal Table을 위함 2: Section 분리를 위함
 
-			if(token.operator.equals("CSECT")) {
-				TokenList.add(tokenTable);
+
+			if(token.operator.equals("CSECT") || token.operator.equals("END")) {
+				tokenList.add(tokenTable);
+				symtabList.add(symbolTable);
+
+				token.setLocation(0); // 토큰의 location을 0으로 set한다.
 
 				symbolTable = new SymbolTable();
 				tokenTable = new TokenTable(symbolTable, instTable);
-				TokenTable.locationCounter = 0; // locationCounter 또한 초기화 시켜줘야한다.
+
+				if(token.operator.equals("CSECT")) {
+					TokenTable.locationCounter = 0; // locationCounter 또한 초기화 시켜줘야한다.
+				}
 			}
+			else if(token.operator.equals("LTORG")) {
+				for(int j = literalTable.checkIndexForPass1; j < literalTable.literalList.size(); j++){
+					String literal = literalTable.getLiteral(j);
+					literalTable.putLocation(TokenTable.locationCounter); // 주소 할당
+
+					int sizeLiteral = Utility.countLengthLiteral(literal, literal.charAt(1)); // literal의 사이즈 반환 -> 반환된 사이즈만큼 TokenTable의 locationCounter 증가
+					TokenTable.locationCounter += sizeLiteral;
+				}
+			}
+			else if(token.operand[0] != null){ // literal table에 literal을 집어넣음
+				if(token.operand[0].startsWith("=")){
+					if(!literalTable.checkRedundancy(token.operand[0])){
+						literalTable.putLiteral(token.operand[0]);
+					}
+				}
+			}
+
+			token.putInSymbolTable(symbolTable); // token의 수정이 끝난 뒤, symbolTable에 넣는다.
         }
-		
+
+		// 모든 scan이 끝난 뒤에 해야할 것은 LTORG를 만나지 못한 literal에 주소를 부여해주어야 한다.
+		int check = literalTable.checkIndexForPass1;
+		for(int i = literalTable.checkIndexForPass1; i < literalTable.literalList.size(); i++){
+			literalTable.putLocation(TokenTable.locationCounter); // 주소 할당
+
+			String literal = literalTable.getLiteral(i); // literal의 사이즈만큼 주소 더하기
+			System.out.println(literal);
+			int sizeLiteral = Utility.countLengthLiteral(literal, literal.charAt(1));
+			TokenTable.locationCounter += sizeLiteral;
+		}
 	}
 	
 	/**

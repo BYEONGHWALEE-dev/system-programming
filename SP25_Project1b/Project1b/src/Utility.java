@@ -46,4 +46,20 @@ public class Utility {
         }
         return count;
     }
+
+
+
+
+    // literal Logic
+    // literal의 문자길이 구하기
+    public static int countLengthLiteral(String literal, char type){
+        if(type == 'C'){
+            return (literal.length() - 4);
+        }
+        if(type == 'X'){
+            return (literal.length() - 4) / 2;
+        }
+        return 0;
+    }
+
 }

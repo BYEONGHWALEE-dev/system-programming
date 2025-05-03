@@ -112,7 +112,6 @@ class Token{
 	public Token(String line, InstTable instTab, SymbolTable symTab) {
 		//initialize 추가
 		parsing(line, instTab);
-		putInSymbolTable(symTab);
 		addLocationCounter(operator, operand, instTab);
 	}
 	
@@ -122,7 +121,6 @@ class Token{
 	 */
 	public void parsing(String line, InstTable instTab) {
 		String[] parts = line.split("\t");
-		System.out.println(parts[0]);
 		this.location = TokenTable.locationCounter;
 		this.label = parts[0];
 		this.operator = parts[1];
@@ -191,6 +189,9 @@ class Token{
 			TokenTable.locationCounter += format;
 			this.byteSize = format;
 		}
+		else if(value.startsWith("+")){
+			TokenTable.locationCounter += 4;
+		}
 		else {
 			TokenTable.locationCounter += Utility.calConstant(value); // 상수 locationCounter 계산
 			TokenTable.locationCounter += Utility.calVariable(value, operand); // 변수 locationCounter 계산
@@ -207,6 +208,13 @@ class Token{
 		if(!this.label.isEmpty()){
 			symTab.putSymbol(this.label, this.location);
 		}
+	}
+
+	/**
+	 * Token location 수정
+	 */
+	public void setLocation(int newLocation){
+		this.location = newLocation;
 	}
 }
 
