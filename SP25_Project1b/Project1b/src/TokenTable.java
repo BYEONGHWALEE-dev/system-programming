@@ -19,6 +19,7 @@ public class TokenTable {
 	public static final int pFlag=2;
 	public static final int eFlag=1;
 	public static int locationCounter = 0;
+	public  int tokenTableIndex;
 	
 	/* Token을 다룰 때 필요한 테이블들을 링크시킨다. */
 	SymbolTable symTab;
@@ -26,7 +27,7 @@ public class TokenTable {
 	
 	
 	/** 각 line을 의미별로 분할하고 분석하는 공간. */
-	ArrayList<Token> tokenList;
+	ArrayList<Token> tokenList = new ArrayList<>();
 	
 	/**
 	 * 초기화하면서 symTable과 instTable을 링크시킨다.
@@ -37,6 +38,7 @@ public class TokenTable {
 		//...
 		this.symTab = symTab;
 		this.instTab = instTab;
+		this.tokenTableIndex = 0;
 	}
 	
 	/**
@@ -120,11 +122,19 @@ class Token{
 	 */
 	public void parsing(String line, InstTable instTab) {
 		String[] parts = line.split("\t");
+		System.out.println(parts[0]);
 		this.location = TokenTable.locationCounter;
 		this.label = parts[0];
 		this.operator = parts[1];
-		this.operand = divOperand(parts[2]);
-		this.comment = parts[3];
+
+		// operand가 없을 수 있다.
+		try{
+			this.operand = divOperand(parts[2]);
+		}catch (ArrayIndexOutOfBoundsException e){this.operand = new String[0];}
+		// comment가 없을 수도 있다.
+		try{
+			this.comment = parts[3];
+		}catch (ArrayIndexOutOfBoundsException e){this.comment = "";}
 	}
 	
 	/** 
@@ -198,7 +208,6 @@ class Token{
 			symTab.putSymbol(this.label, this.location);
 		}
 	}
-
 }
 
 

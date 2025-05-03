@@ -1,4 +1,6 @@
 import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.HashMap;
 
 
@@ -28,7 +30,7 @@ public class InstTable {
 	 */
 	public void openFile(String fileName) {
 		//...
-		try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
+		try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(fileName), StandardCharsets.UTF_8))) {
 			String line;
 			while ((line = br.readLine()) != null) {
 				Instruction instruction= new Instruction(line);
@@ -61,10 +63,11 @@ public class InstTable {
  */
 class Instruction {
 
-	protected String mnemonic;
-	private int format;
+	String mnemonic;
+	int format;
 	/** instruction이 몇 바이트 명령어인지 저장. 이후 편의성을 위함 */
-	private int opcode;
+	int opcode;
+	int countOperand;
 
 	/**
 	 * 클래스를 선언하면서 일반문자열을 즉시 구조에 맞게 파싱한다.
@@ -80,10 +83,13 @@ class Instruction {
 	 */
 	public void parsing(String line) {
 		// TODO Auto-generated method stub
-		String[] token = line.split("\t");
+		line = line.trim();
+		String[] token = line.split("[,\\s+]");
 		this.mnemonic = token[0];
 		this.format = Integer.parseInt(token[1]);
-		this.opcode = Integer.parseInt(token[2].trim());
+		this.opcode = Integer.parseInt(token[2], 16);
+		this.countOperand = Integer.parseInt(token[3]);
+
 	}
 	//그 외 함수 자유 구현
 	public int getFormat() {return this.format;}

@@ -122,8 +122,12 @@ public class Assembler {
 		TokenTable tokenTable = new TokenTable(symbolTable, instTable);
 		// lineList에서 한 줄씩 스캔하여 토큰 단위로 분리한 뒤 토큰 테이블 생성
         for (int i= 0; i < lineList.size(); i++) {
-            tokenTable.putToken(lineList.get(i));
-			Token token = tokenTable.getToken(i); // 토큰을 가져온다. 1: Literal Table을 위함 2: Section 분리를 위함
+			// 읽어올때 . 이면 pass
+			String line = lineList.get(i);
+			if(line.startsWith(".")){continue;} // .로 시작하면 Pass
+
+            tokenTable.putToken(line);
+			Token token = tokenTable.getToken(tokenTable.tokenTableIndex++); // 토큰을 가져온다. 1: Literal Table을 위함 2: Section 분리를 위함
 
 			if(token.operator.equals("CSECT")) {
 				TokenList.add(tokenTable);

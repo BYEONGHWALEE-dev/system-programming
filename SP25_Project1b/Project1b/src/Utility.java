@@ -26,8 +26,8 @@ public class Utility {
 
     // 변수 메모리 크기 계산하기
     public static final int calVariable(String value, String[] operand){
-        if(value.equals("RESB")){return (Integer.parseInt(operand[1]));}
-        if(value.equals("RESW")){return (Integer.parseInt(operand[1])) * 3;}
+        if(value.equals("RESB")){return (Integer.parseInt(operand[0]));}
+        if(value.equals("RESW")){return (Integer.parseInt(operand[0])) * 3;}
         return 0;
     }
 
