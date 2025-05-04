@@ -34,6 +34,8 @@ public class Assembler {
 	ArrayList<SymbolTable> symtabList;
 	/** 프로그램의 section별로 프로그램을 저장하는 공간*/
 	ArrayList<TokenTable> tokenList;
+	/** 프로그램의 section별로 프로그램을 저장하는 공간*/
+	ArrayList<RefTable> refList;
 	/** 
 	 * Token, 또는 지시어에 따라 만들어진 오브젝트 코드들을 출력 형태로 저장하는 공간. <br>
 	 * 필요한 경우 String 대신 별도의 클래스를 선언하여 ArrayList를 교체해도 무방함.
@@ -56,6 +58,7 @@ public class Assembler {
 		symtabList = new ArrayList<SymbolTable>();
 		tokenList = new ArrayList<TokenTable>();
 		codeList = new ArrayList<String>();
+		refList = new ArrayList<RefTable>();
 	}
 
 	/** 
@@ -103,8 +106,6 @@ public class Assembler {
 		try(BufferedWriter writer = new BufferedWriter(new FileWriter(fileName, false))){
 			for(int i = 0; i < symtabList.size(); i++) {
 				for(int j = 0; j < symtabList.get(i).symbolList.size(); j++) {
-					System.out.println(symtabList.get(i).symbolList.get(j));
-					System.out.printf("%04X\n", symtabList.get(i).locationList.get(j));
 					writer.write(symtabList.get(i).symbolList.get(j));
 				}
 			}
@@ -133,6 +134,8 @@ public class Assembler {
 		// TODO Auto-generated method stub
 		SymbolTable symbolTable = new SymbolTable();
 		TokenTable tokenTable = new TokenTable(symbolTable, instTable);
+		RefTable refTable = new RefTable();
+
 		// lineList에서 한 줄씩 스캔하여 토큰 단위로 분리한 뒤 토큰 테이블 생성
         for (int i= 0; i < lineList.size(); i++) {
 			// 읽어올때 . 이면 pass
@@ -146,15 +149,25 @@ public class Assembler {
 			if(token.operator.equals("CSECT") || token.operator.equals("END")) {
 				tokenList.add(tokenTable);
 				symtabList.add(symbolTable);
+				refList.add(refTable);
 
 				token.setLocation(0); // 토큰의 location을 0으로 set한다.
 
 				symbolTable = new SymbolTable();
 				tokenTable = new TokenTable(symbolTable, instTable);
+				refTable = new RefTable();
 
 				if(token.operator.equals("CSECT")) {
 					TokenTable.locationCounter = 0; // locationCounter 또한 초기화 시켜줘야한다.
 				}
+			}
+			else if(token.operator.equals("EXTDEF")){ //EXTDEF를 만나면 DEF 테이블에 넣는다. 만약 없으면 DEF의 사이즈가 0이 되는 것 -> null이 아니다. 생성할 때 테이블을 다 생성함
+				int countOperand = Utility.countOperand(token.operand);
+				refTable.putInDefTable(token.operand, countOperand);
+			}
+			else if(token.operator.equals("EXTREF")){
+				int countOperand = Utility.countOperand(token.operand);
+				refTable.putInRefTable(token.operand, countOperand);
 			}
 			else if(token.operator.equals("LTORG")) {
 				for(int j = literalTable.checkIndexForPass1; j < literalTable.literalList.size(); j++){
