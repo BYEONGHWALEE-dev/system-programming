@@ -38,9 +38,12 @@ public class SymbolTable {
 	 * @return symbol이 가지고 있는 주소값. 해당 symbol이 없을 경우 -1 리턴
 	 */
 	public int searchSymbol(String symbol) {
-		int address = 0;
-		//...
-		return address;
+		for(int i = 0; i < symbolList.size(); i++) {
+			if(symbolList.get(i).equals(symbol)) {
+				return locationList.get(i);
+			}
+		}
+		return -1;
 	}
 	
 	

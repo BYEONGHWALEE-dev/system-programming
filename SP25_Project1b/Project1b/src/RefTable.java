@@ -19,4 +19,13 @@ public class RefTable {
         refTable.addAll(Arrays.asList(operand).subList(0, countOperand));
     }
 
+    // getter
+    public ArrayList<String> getDefTable() {
+        return defTable;
+    }
+
+    public ArrayList<String> getRefTable() {
+        return refTable;
+    }
+
 }

@@ -70,9 +70,8 @@ public class Assembler {
 
 		assembler.pass1();
 		assembler.printSymbolTable("output_symtab.txt");
-		/*
 		assembler.printLiteralTable("output_littab.txt");
-		
+		/*
 		assembler.pass2();
 		assembler.printObjectCode("output_objectcode.txt");
 
@@ -106,7 +105,10 @@ public class Assembler {
 		try(BufferedWriter writer = new BufferedWriter(new FileWriter(fileName, false))){
 			for(int i = 0; i < symtabList.size(); i++) {
 				for(int j = 0; j < symtabList.get(i).symbolList.size(); j++) {
-					writer.write(symtabList.get(i).symbolList.get(j));
+					writer.write(String.format("%-10s 0x%04X\n", symtabList.get(i).symbolList.get(j), symtabList.get(i).locationList.get(j)));
+				}
+				for(int j = 0; j < refList.get(i).getRefTable().size(); j++) {
+					writer.write(String.format("%-10s %-8s\n", refList.get(i).getRefTable().get(j), "REF"));
 				}
 			}
 		}catch (IOException e) {
@@ -120,7 +122,16 @@ public class Assembler {
 	 */
 	private void printLiteralTable(String fileName) {
 		// TODO Auto-generated method stub
+		try(BufferedWriter writer = new BufferedWriter(new FileWriter(fileName, false))){
+			for(int i = 0; i < literalTable.literalList.size(); i++) {
+				String literal = literalTable.literalList.get(i);
+				int location = literalTable.locationList.get(i);
 
+				writer.write(String.format("%-12s 0x%04X\n", literal, location));
+			}
+		} catch (IOException e){
+			e.printStackTrace();
+		}
 	}
 
 	/** 
@@ -144,7 +155,6 @@ public class Assembler {
 
             tokenTable.putToken(line); //token으로 넣음
 			Token token = tokenTable.getToken(tokenTable.tokenTableIndex++); // 토큰을 가져온다. 1: Literal Table을 위함 2: Section 분리를 위함
-
 
 			if(token.operator.equals("CSECT") || token.operator.equals("END")) {
 				tokenList.add(tokenTable);
@@ -178,6 +188,14 @@ public class Assembler {
 					TokenTable.locationCounter += sizeLiteral;
 				}
 			}
+			else if(token.operator.equals("EQU")) {
+				if(token.operand.length > 1){
+					int firstOperand = symbolTable.searchSymbol(token.operand[0]);
+					int secondOperand = symbolTable.searchSymbol(token.operand[1]);
+
+					token.location = firstOperand - secondOperand;
+				}
+			}
 			else if(token.operand[0] != null){ // literal table에 literal을 집어넣음
 				if(token.operand[0].startsWith("=")){
 					if(!literalTable.checkRedundancy(token.operand[0])){
@@ -191,7 +209,7 @@ public class Assembler {
 
 		// 모든 scan이 끝난 뒤에 해야할 것은 LTORG를 만나지 못한 literal에 주소를 부여해주어야 한다.
 		int check = literalTable.checkIndexForPass1;
-		for(int i = literalTable.checkIndexForPass1; i < literalTable.literalList.size(); i++){
+		for(int i = check; i < literalTable.literalList.size(); i++){
 			literalTable.putLocation(TokenTable.locationCounter); // 주소 할당
 
 			String literal = literalTable.getLiteral(i); // literal의 사이즈만큼 주소 더하기

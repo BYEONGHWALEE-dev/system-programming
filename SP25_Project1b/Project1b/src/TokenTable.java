@@ -19,7 +19,7 @@ public class TokenTable {
 	public static final int pFlag=2;
 	public static final int eFlag=1;
 	public static int locationCounter = 0;
-	public  int tokenTableIndex;
+	public int tokenTableIndex;
 	
 	/* Token을 다룰 때 필요한 테이블들을 링크시킨다. */
 	SymbolTable symTab;
