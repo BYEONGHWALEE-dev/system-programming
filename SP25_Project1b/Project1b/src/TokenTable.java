@@ -60,11 +60,36 @@ public class TokenTable {
 	
 	/**
 	 * Pass2 과정에서 사용한다.
-	 * instruction table, symbol table 등을 참조하여 objectcode를 생성하고, 이를 저장한다.
+	 * instruction table, symbol table, token table 등을 참조하여 objectcode를 생성하고, 이를 저장한다.
 	 * @param index
 	 */
-	public void makeObjectCode(int index){
+	public void makeObjectCode(int index) {
 		//...
+		Token token = tokenList.get(index);
+		String operator = token.operator;
+		int nixbpe = token.nixbpe;
+		int targetAddress = makeTargetAddress(index);
+		int format = instTab.getFormatOfInstruction(operator);
+		int opcode = instTab.getOpcode(operator);
+
+		String objCode = "";
+
+		if(format == 2){
+			objCode = String.format("%02X%02X", opcode, targetAddress);
+		}
+		else if(format == 3 || format == 4){
+			int op_high6 = opcode & 0xFC;
+			int op_with_flags = op_high6 | ((nixbpe >> 4) & 0x03);
+
+			if((nixbpe & TokenTable.eFlag) != 0){
+				// format 4
+				objCode = String.format("%02X%01X%05X", op_with_flags, (nixbpe & 0x0F), targetAddress & 0xFFFFF);
+			}
+			else{
+				objCode = String.format("%02X%01X%03X", op_with_flags, (nixbpe & 0x0F), targetAddress & 0xFFF);
+			}
+		}
+		token.objectCode = objCode;
 	}
 	
 	/** 
@@ -84,6 +109,66 @@ public class TokenTable {
 	public SymbolTable getSymbolTable(){
 		return symTab;
 	}
+
+	/**
+	 * Calculate Target address
+	 */
+	public int makeTargetAddress(int index) {
+		Token token = tokenList.get(index);
+		Token nextToken = tokenList.get(index+1);
+		int nixbpe = token.nixbpe;
+		String[] operand = token.operand;
+		int targetAddress = 0b000;
+
+		// nixbpe -> format 3/4
+		if((nixbpe & TokenTable.eFlag) != 0){
+			int count = 0;
+			for(int i = 0; i < operand.length; i++){
+				if(symTab.searchSymbol(operand[i]) != -1) { // 만약 symTab에 없으면 EXTREF Table에 있다는 뜻 --> 주소를 알 수 없다.
+					count += 1;
+				}
+			}
+			if(count == 0) {targetAddress = 0b00000;}
+		}
+		else if(((nixbpe & TokenTable.nFlag) == 0) && ((nixbpe & TokenTable.iFlag) == TokenTable.iFlag)){ // n = 1, i = 0 -> Immediate
+			String theOperand = operand[0].substring(1); // # 제거
+			targetAddress = Integer.parseInt(theOperand);
+		}
+		else if((nixbpe & TokenTable.pFlag) == 2){
+			int pcCounter = nextToken.location;
+			int tempAddress = symTab.searchSymbol(operand[0]);
+
+			targetAddress = tempAddress - pcCounter;
+		}
+
+		// format2
+		if(instTab.getFormatOfInstruction(token.operator) == 2){
+			int r1 = 0;
+			int r2 = 0;
+
+			for(int i = 0; i < operand.length; i++){
+				switch(token.operand[i]){
+					case "A":
+						if (i == 0) r1 = 0x0;
+						else r2 = 0x0;
+						break;
+					case "X":
+						if (i == 0) r1 = 0x1;
+						else r2 = 0x1;
+						break;
+					case "S":
+						if (i == 0) r1 = 0x4;
+						else r2 = 0x4;
+						break;
+					default:
+						break;
+				}
+			}
+		targetAddress = (r1 << 4) | r2;
+		}
+
+		return targetAddress;
+	}
 	
 }
 
@@ -99,7 +184,7 @@ class Token{
 	String[] operand;
 	String comment;
 	char arithmetic;
-	char nixbpe;
+	int nixbpe = 0; // 플래그 초기화
 
 	// object code 생성 단계에서 사용되는 변수들 
 	String objectCode;
@@ -128,7 +213,8 @@ class Token{
 		// operand가 없을 수 있다.
 		try{
 			this.operand = divOperand(parts[2]);
-		}catch (ArrayIndexOutOfBoundsException e){this.operand = new String[0];}
+		}catch (ArrayIndexOutOfBoundsException e){this.operand = new String[0];} // operand가 없다면 길이가 1인 ""만 있다.
+
 		// comment가 없을 수도 있다.
 		try{
 			this.comment = parts[3];
@@ -146,6 +232,11 @@ class Token{
 	 */
 	public void setFlag(int flag, int value) {
 		//...
+		if(value == 1){
+			nixbpe |= flag;
+		} else{
+			nixbpe &= ~flag;
+		}
 	}
 	
 	/**
@@ -202,6 +293,13 @@ class Token{
 	}
 
 	/**
+	 * nixbpe를 설정할때 x의 유무
+	 */
+	public boolean checkXRegister(String[] operand) {
+        return operand.length > 1 && "X".equals(operand[1]);
+    }
+
+	/**
 	 * 토큰 생성할때 label 확인 후 -> symbol Table에 바로 넣어버림
 	 */
 	public void putInSymbolTable(SymbolTable symTab) {
@@ -216,6 +314,8 @@ class Token{
 	public void setLocation(int newLocation){
 		this.location = newLocation;
 	}
+
+
 }
 
 

@@ -225,6 +225,89 @@ public class Assembler {
 	 */
 	private void pass2() {
 		// TODO Auto-generated method stub
+		// 2번째 Scan
+		for(int i = 0; i < tokenList.size(); i++) { // 전체 section의 개수
+			TokenTable tokenTable = tokenList.get(i);
+			ArrayList<Token> tokenList = tokenTable.tokenList;
+			SymbolTable symbolTable = tokenTable.getSymbolTable();
+
+			for(int j = 0; j < tokenList.size(); j++) { // section내의 명령어 개수
+				Token token = tokenList.get(j);
+				String operator = token.operator;
+				String[] operand = token.operand;
+				/*
+				  set nixbpe
+				 */
+				// + : format 4, # : immediate, @ : indirect로 구분지어야 함
+				if(operator.startsWith("+")){
+					token.setFlag(TokenTable.nFlag, 1);
+					token.setFlag(TokenTable.iFlag, 1);
+					token.setFlag(TokenTable.bFlag, 0);
+					token.setFlag(TokenTable.pFlag, 0);
+					token.setFlag(TokenTable.eFlag, 1);
+
+					// Operand에서 X 확인 후 flag 설정
+					if(token.checkXRegister(operand)){
+						token.setFlag(TokenTable.xFlag, 1);
+					}
+					else {
+						token.setFlag(TokenTable.xFlag, 0);
+					}
+				}
+				else if(operand[0].startsWith("#")){
+					token.setFlag(TokenTable.nFlag, 0);
+					token.setFlag(TokenTable.iFlag, 1);
+					token.setFlag(TokenTable.xFlag, 0);
+					token.setFlag(TokenTable.bFlag, 0);
+					token.setFlag(TokenTable.pFlag, 0);
+					token.setFlag(TokenTable.eFlag, 0);
+				}
+				else if(operand[0].startsWith("@")){
+					token.setFlag(TokenTable.nFlag, 1);
+					token.setFlag(TokenTable.iFlag, 0);
+					token.setFlag(TokenTable.xFlag, 0);
+
+					// b 와 p 중 하나를 선택해야 함.
+					Token nextToken = tokenList.get(j + 1);
+					int targetAddress = symbolTable.searchSymbol(nextToken.operand[0].substring(1));
+					if(nextToken.location - targetAddress > 0){
+						token.setFlag(TokenTable.pFlag, 1);
+					} else {
+						token.setFlag(TokenTable.bFlag, 0);
+					}
+
+					token.setFlag(TokenTable.eFlag, 0);
+				}
+				else{
+					token.setFlag(TokenTable.nFlag, 1);
+					token.setFlag(TokenTable.iFlag, 1);
+
+					// Operand에서 X 확인 후 flag 설정
+					if(token.checkXRegister(operand)){
+						token.setFlag(TokenTable.xFlag, 1);
+					}
+					else {
+						token.setFlag(TokenTable.xFlag, 0);
+					}
+
+					// b 와 p 중 하나를 선택해야 함.
+					Token nextToken = tokenList.get(j + 1);
+					int targetAddress = symbolTable.searchSymbol(nextToken.operand[0].substring(1));
+					if(nextToken.location - targetAddress > 0){
+						token.setFlag(TokenTable.pFlag, 1);
+					} else {
+						token.setFlag(TokenTable.bFlag, 0);
+					}
+
+					token.setFlag(TokenTable.eFlag, 0);
+				}
+
+				/*
+				Object code 생성
+				 */
+				tokenTable.makeObjectCode(j);
+			}
+		}
 		
 	}
 

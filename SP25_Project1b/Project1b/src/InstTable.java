@@ -51,6 +51,14 @@ public class InstTable {
 		this.instMap = instMap;
 	}
 
+	public int getFormatOfInstruction(String mnemonic){
+		return instMap.get(mnemonic).getFormat();
+	}
+
+	public int getOpcode(String mnemonic){
+		return instMap.get(mnemonic).getOpcode();
+	}
+
 	// map의 사이즈 반환 함수
 	public int getInstMapLength(){
 		return instMap.size();
