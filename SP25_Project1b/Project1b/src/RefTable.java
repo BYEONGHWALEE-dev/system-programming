@@ -1,3 +1,4 @@
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -28,4 +29,7 @@ public class RefTable {
         return refTable;
     }
 
+    public boolean isExternalRefSymbol(String symbol){
+        return refTable.contains(symbol);
+    }
 }

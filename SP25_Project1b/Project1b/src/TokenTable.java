@@ -1,5 +1,6 @@
 import java.io.BufferedReader;
 import java.io.StringReader;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 /**
@@ -24,29 +25,39 @@ public class TokenTable {
 	/* Token을 다룰 때 필요한 테이블들을 링크시킨다. */
 	SymbolTable symTab;
 	InstTable instTab;
-	
+	ArrayList<String> directiveTable;
+	LiteralTable literalTable;
 	
 	/** 각 line을 의미별로 분할하고 분석하는 공간. */
 	ArrayList<Token> tokenList = new ArrayList<>();
+	/** 테이블의 길이 */
+	public int tableLength;
 	
 	/**
 	 * 초기화하면서 symTable과 instTable을 링크시킨다.
 	 * @param symTab : 해당 section과 연결되어있는 symbol table
 	 * @param instTab : instruction 명세가 정의된 instTable
 	 */
-	public TokenTable(SymbolTable symTab, InstTable instTab) {
+	public TokenTable(SymbolTable symTab, InstTable instTab, ArrayList<String> directiveTable) {
 		//...
 		this.symTab = symTab;
 		this.instTab = instTab;
+		this.directiveTable = directiveTable;
 		this.tokenTableIndex = 0;
+		tableLength = 0;
 	}
-	
+
 	/**
 	 * 일반 문자열을 받아서 Token단위로 분리시켜 tokenList에 추가한다.
 	 * @param line : 분리되지 않은 일반 문자열
 	 */
 	public void putToken(String line) {
 		tokenList.add(new Token(line, instTab, symTab));
+	}
+
+	public void putTokenRest(Token token) {
+		tokenList.add(token);
+
 	}
 	
 	/**
@@ -89,8 +100,27 @@ public class TokenTable {
 				objCode = String.format("%02X%01X%03X", op_with_flags, (nixbpe & 0x0F), targetAddress & 0xFFF);
 			}
 		}
+		else if(directiveTable.contains(operator)){
+			if(operator.equals("BYTE")){
+				objCode = token.operand[0].substring(2, token.operand[0].length() - 1).toUpperCase();
+			}
+			else if(operator.equals("WORD")){
+				if(!symTab.isitSymbol(token.operand)){
+					objCode = "000000";
+				}
+			}
+
+		}
+		else if(token.operator.equals("LTORG")){
+			for(int i = 0; i < literalTable.checkIndexForPass2; i++){
+				objCode = Utility.convertLiteralToObjectCode(literalTable.getLiteral(i));
+			}
+		}
 		token.objectCode = objCode;
 	}
+
+	// literal을 Ascii로 변환
+
 	
 	/** 
 	 * index번호에 해당하는 object code를 리턴한다.
@@ -136,9 +166,15 @@ public class TokenTable {
 		}
 		else if((nixbpe & TokenTable.pFlag) == 2){
 			int pcCounter = nextToken.location;
-			int tempAddress = symTab.searchSymbol(operand[0]);
-
-			targetAddress = tempAddress - pcCounter;
+			int tempAddress;
+			if(literalTable.literalList.contains(operand[0])){ // literal일 경우에 말하는 것
+				tempAddress = literalTable.getLocationByLiteral(operand[0]);
+				targetAddress = tempAddress - pcCounter;
+			}
+			else{
+				tempAddress = symTab.searchSymbol(operand[0]);
+				targetAddress = tempAddress - pcCounter;
+			}
 		}
 
 		// format2
@@ -159,6 +195,10 @@ public class TokenTable {
 					case "S":
 						if (i == 0) r1 = 0x4;
 						else r2 = 0x4;
+						break;
+					case "T":
+						if(i == 0) r1 = 0x5;
+						else r2 = 0x5;
 						break;
 					default:
 						break;
@@ -198,6 +238,10 @@ class Token{
 		//initialize 추가
 		parsing(line, instTab);
 		addLocationCounter(operator, operand, instTab);
+	}
+
+	public Token(String objectCode){
+		this.objectCode = objectCode;
 	}
 	
 	/**

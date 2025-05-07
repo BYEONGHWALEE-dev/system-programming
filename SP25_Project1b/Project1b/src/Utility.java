@@ -62,4 +62,20 @@ public class Utility {
         return 0;
     }
 
+    public static String convertLiteralToObjectCode(String literal) {
+        if (literal.startsWith("=C'") && literal.endsWith("'")) {
+            String content = literal.substring(3, literal.length() - 1);  // "EOF"
+            StringBuilder objCode = new StringBuilder();
+            for (char c : content.toCharArray()) {
+                objCode.append(String.format("%02X", (int) c));
+            }
+            return objCode.toString();
+
+        } else if (literal.startsWith("=X'") && literal.endsWith("'")) {
+            String hex = literal.substring(3, literal.length() - 1);  // "05"
+            return hex.toUpperCase();
+        }
+
+        return null;  // 잘못된 형식이면 null
+    }
 }

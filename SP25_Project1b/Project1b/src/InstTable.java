@@ -52,10 +52,22 @@ public class InstTable {
 	}
 
 	public int getFormatOfInstruction(String mnemonic){
+		if(mnemonic.startsWith("+")){ // + 로 시작하면 +를 제외한다.
+			mnemonic = mnemonic.substring(1);
+		}
+		if(!instMap.containsKey(mnemonic)){
+			return -1;
+		}
 		return instMap.get(mnemonic).getFormat();
 	}
 
 	public int getOpcode(String mnemonic){
+		if(mnemonic.startsWith("+")){
+			mnemonic = mnemonic.substring(1); //로 시작하면 +를 제외한다.
+		}
+		if(!instMap.containsKey(mnemonic)){
+			return -1;
+		}
 		return instMap.get(mnemonic).getOpcode();
 	}
 

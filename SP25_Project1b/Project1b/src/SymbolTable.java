@@ -38,6 +38,10 @@ public class SymbolTable {
 	 * @return symbol이 가지고 있는 주소값. 해당 symbol이 없을 경우 -1 리턴
 	 */
 	public int searchSymbol(String symbol) {
+		if(symbol.startsWith("@")) {
+			symbol = symbol.substring(1);
+		}
+
 		for(int i = 0; i < symbolList.size(); i++) {
 			if(symbolList.get(i).equals(symbol)) {
 				return locationList.get(i);
@@ -45,7 +49,17 @@ public class SymbolTable {
 		}
 		return -1;
 	}
-	
-	
+
+	/**
+	 * operand 배열에서 syMbol이 있는지 없는지 확인
+	 */
+	public boolean isitSymbol(String[] operand){
+		for(int i = 0; i < operand.length; i++) {
+			if(operand[i].equals(symbolList.get(i))) {
+				return true;
+			}
+		}
+		return false;
+	}
 	
 }
