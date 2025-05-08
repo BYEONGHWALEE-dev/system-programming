@@ -111,9 +111,22 @@ public class Assembler {
 	private void printSymbolTable(String fileName) {
 		// TODO Auto-generated method stub
 		try(BufferedWriter writer = new BufferedWriter(new FileWriter(fileName, false))){
+
 			for(int i = 0; i < symtabList.size(); i++) {
+				String sectionName = "";
 				for(int j = 0; j < symtabList.get(i).symbolList.size(); j++) {
-					writer.write(String.format("%-10s 0x%04X\n", symtabList.get(i).symbolList.get(j), symtabList.get(i).locationList.get(j)));
+					if(symtabList.get(i).locationList.get(j) == 0){
+						sectionName = symtabList.get(i).symbolList.get(j);
+						break;
+					}
+				}
+
+				for(int j = 0; j < symtabList.get(i).symbolList.size(); j++) {
+					if(j == 0){
+						writer.write(String.format("%-10s 0x%04X\n", symtabList.get(i).symbolList.get(j), symtabList.get(i).locationList.get(j)));
+					} else{
+						writer.write(String.format("%-10s 0x%04X	%-8s\n", symtabList.get(i).symbolList.get(j), symtabList.get(i).locationList.get(j), sectionName));
+					}
 				}
 				for(int j = 0; j < refList.get(i).getRefTable().size(); j++) {
 					writer.write(String.format("%-10s %-8s\n", refList.get(i).getRefTable().get(j), "REF"));
@@ -224,7 +237,6 @@ public class Assembler {
 			literalTable.putLocation(TokenTable.locationCounter); // 주소 할당
 
 			String literal = literalTable.getLiteral(i); // literal의 사이즈만큼 주소 더하기
-			System.out.println(literal);
 			int sizeLiteral = Utility.countLengthLiteral(literal, literal.charAt(1));
 			TokenTable.locationCounter += sizeLiteral;
 		}
@@ -331,7 +343,6 @@ public class Assembler {
 				 */
 				if ((instTable.getOpcode(token.operator) != -1) || (directiveList.contains(token.operator))) {
 					tokenTable.makeObjectCode(j);
-					System.out.println(token.objectCode);
 				} else if (token.operator.equals("LTORG")) {
 					literalTable.checkIndexForPass2++;
 					tokenTable.makeObjectCode(j);
@@ -380,6 +391,7 @@ public class Assembler {
 		// 마지막 Section의 modificationTable도 추가
 		modList.add(modificationTable);
 
+		/*
 		System.out.println("\n===== Modification Records by Section =====");
 
 		for (int sectionIndex = 0; sectionIndex < modList.size(); sectionIndex++) {
@@ -394,6 +406,7 @@ public class Assembler {
 				System.out.println("  (No modification records)");
 			}
 		}
+		 */
 	}
 
 	/**
@@ -411,7 +424,6 @@ public class Assembler {
 				ArrayList<String> extDefSymbols = refList.get(i).getDefTable();  // 사용자 정의 EXTDEF 테이블
 
 				String sectionName = tokens.getFirst().label;
-				System.out.println(tokens.getFirst().operator);
 				if(sectionName.trim().isEmpty()){
 					TokenTable preTokenTable = tokenList.get(i - 1);
 					int listSize = preTokenTable.tokenList.size();
@@ -484,9 +496,9 @@ public class Assembler {
 
 				// E record
 				if (i == 0) {
-					writer.write(String.format("E%06X\n", startAddr));  // 첫 section만 entry 지정
+					writer.write(String.format("E%06X\n\n", startAddr));  // 첫 section만 entry 지정
 				} else {
-					writer.write("E\n");  // 나머지는 그냥 E
+					writer.write("E\n\n");  // 나머지는 그냥 E
 				}
 			}
 
