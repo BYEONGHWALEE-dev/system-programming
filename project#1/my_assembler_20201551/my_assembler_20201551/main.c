@@ -462,7 +462,7 @@ static int assem_pass1(void)
         if (tk->label) {
             strcpy(sym_table[sym_index].symbol, tk->label);
             if(strcmp(tk->operator, "EQU") == 0){ //EQU 발견시
-                if(strcmp(tk->operand[0], "*") == 0){
+                if(strcmp(tk->operand[0], "*") == 0){ // *면 현재 주소 바로 할당
                     sym_table[sym_index++].addr = locctr;
                 }
                 else {
@@ -493,7 +493,6 @@ static int assem_pass1(void)
                             }
                         }
                         // temp_list가 완성되면 num_operator에 들어있는 것을 활용하여 계산하면 됨
-                        
                         if(num_operator){
                             int sum = 0;
                             switch (num_operator) {
@@ -506,8 +505,6 @@ static int assem_pass1(void)
                                 default:
                                     break;
                             }
-                      
-                            
                             sym_table[sym_index++].addr = sum;
                         }
                         else
@@ -530,7 +527,7 @@ static int assem_pass1(void)
                         break;
                     }
                 }
-                if (!exists && literal_index < MAX_LINES) {
+                if (!exists && literal_index < MAX_LINES) { // 리터럴 테이블에 없는 경우
                     literal_table[literal_index].literal = strdup(tk->operand[j]); // strdup은 복사하는 것
                     literal_table[literal_index].addr = -1; // 주소는 LTORG나 END에서 할당
                     literal_index++;
@@ -539,7 +536,7 @@ static int assem_pass1(void)
         }
      
         tk->loc = locctr;
-
+        
         int idx = search_opcode(tk->operator);
         if (idx >= 0) {
             if(tk->operator[0] == '+')
@@ -561,7 +558,7 @@ static int assem_pass1(void)
                 ltorg_check = literal_index;
             }
             if((strcmp("RESB", tk->operator)) == 0){
-                int add_1 = atoi(tk->operand[0]);
+                int add_1 = atoi(tk->operand[0]); // atoi 길이를 구하는 것
                 locctr += add_1;
             }
             if((strcmp("RESW", tk->operator)) == 0){
@@ -611,7 +608,7 @@ static int assem_pass1(void)
         }
     }
 
-        // END 시점에 리터럴 주소 할당
+        // END 시점에 리터럴 주소 할당 // 할당 되지 않은 literal에 주소를 할당한다.
     for (int i = 0; i < literal_index; i++) {
         if (literal_table[i].addr == -1) {
             literal_table[i].addr = locctr;
@@ -734,9 +731,9 @@ void set_nixbpe(token* tk, int token_idx) {
         return;
     }
 
-    if (tk->operand[0] && tk->operand[0][0] == '@') {
+    if (tk->operand[0] && tk->operand[0][0] == '@') { // indirect인 경우
         tk->nixbpe |= 0b100000;
-    } else if (tk->operand[0] && tk->operand[0][0] == '#') {
+    } else if (tk->operand[0] && tk->operand[0][0] == '#') { // Immediate인 경우
         tk->nixbpe |= 0b010000;
     } else {
         tk->nixbpe |= 0b110000;
@@ -757,7 +754,7 @@ void set_nixbpe(token* tk, int token_idx) {
             int target_addr = -1;
             if (tk->operand[0]) {
                 char* operand = tk->operand[0];
-                if (operand[0] == '#' || operand[0] == '@') operand++;
+                if (operand[0] == '#' || operand[0] == '@') operand++; // 포인터 값+1을 해서 다음 글자부터
                 for (int j = 0; j < sym_index; j++) {
                     if (strcmp(sym_table[j].symbol, operand) == 0) {
                         target_addr = sym_table[j].addr;
@@ -776,7 +773,7 @@ void set_nixbpe(token* tk, int token_idx) {
                 }
             }
 
-            if (target_addr != -1 && PC != -1) {
+            if (target_addr != -1 && PC != -1) { // relative인 경우 disp를 구해야한다.
                 int disp = target_addr - PC;
                 if (disp >= -2048 && disp <= 2047) {
                     tk->nixbpe |= 0b000010;  // p=1
@@ -862,9 +859,9 @@ char* generate_object_code(token* tk) {
             return obj_str;
         }
 
-        unsigned int opcode = inst_info->op & 0xFC;
-        unsigned int ni = (tk->nixbpe >> 4) & 0x3;
-        unsigned int xbpe = tk->nixbpe & 0xF;
+        unsigned int opcode = inst_info->op & 0xFC; // 마스킹을 통해서 6자리 opcode를 가져온다.
+        unsigned int ni = (tk->nixbpe >> 4) & 0x3; // 비트 연산 + 마스킹 사용해서 2자리 ni 를 가져온다.
+        unsigned int xbpe = tk->nixbpe & 0xF; // 비스 연산 + 마스킹 사용해서 4자리 xbpe를 가져온다.
 
         unsigned int object_code = 0;
         int target_addr = 0;
@@ -881,7 +878,7 @@ char* generate_object_code(token* tk) {
         }
 
         if (tk->nixbpe & 0b000001) {
-            object_code = ((opcode | ni) << 24) | ((xbpe << 20) | 0b00000);
+            object_code = ((opcode | ni) << 24) | ((xbpe << 20) | 0b00000); // object code를 구하는 방식 : 2진수 + -> |이기 때문에 이것을 활용한것
         } else {
             if(strcmp(tk->operator, "RSUB") == 0){
                 object_code = (opcode | ni) << 16;
@@ -899,14 +896,14 @@ char* generate_object_code(token* tk) {
         return obj_str;
     }
 
-    if (strcmp(tk->operator, "WORD") == 0 && tk->operand[0]) {
+    if (strcmp(tk->operator, "WORD") == 0 && tk->operand[0]) { // Word인 경우
         char* obj_str = (char*)malloc(9);
         int value = atoi(tk->operand[0]);
         sprintf(obj_str, "%06X", value);
         return obj_str;
     }
 
-    if (strcmp(tk->operator, "BYTE") == 0 && tk->operand[0]) {
+    if (strcmp(tk->operator, "BYTE") == 0 && tk->operand[0]) { // BYTE인 경우
         char* obj_str = (char*)malloc(9);
         if (tk->operand[0][0] == 'X') {
             strncpy(obj_str, tk->operand[0] + 2, strlen(tk->operand[0]) - 3);
@@ -929,6 +926,7 @@ char* generate_object_code(token* tk) {
 
 int literal_written[10] = {0};
 
+// literal을 text_buffer에다가 넣는 함수
 void append_literal_to_text_buffer(char* buffer, int* buffer_len, int* record_start, int addr, const char* literal) {
     if (!literal || !buffer || !buffer_len) return;
 
@@ -936,7 +934,7 @@ void append_literal_to_text_buffer(char* buffer, int* buffer_len, int* record_st
     if (literal[1] == 'X') {
         strncpy(hex, literal + 3, 2);
         hex[2] = '\0';
-    } else if (literal[1] == 'C') {
+    } else if (literal[1] == 'C') { // C인 경우, 바로 넣는 것이 아니라, char* 배열을 사용해서 한글자씩, 2자리 16진수로 변환해서 넣는다. 이유 : 1글자는 1바이트 -> 16진수 2개
         const char* p = literal + 3;
         hex[0] = '\0';
         for (int i = 0; i < (int)(strlen(literal) - 4); i++) {
@@ -951,7 +949,7 @@ void append_literal_to_text_buffer(char* buffer, int* buffer_len, int* record_st
     strcat(buffer, hex);
     *buffer_len += strlen(hex);
 
-    for (int l = 0; l < literal_index; l++) {
+    for (int l = 0; l < literal_index; l++) { // LTORG 만난 것 표시
         if (strcmp(literal_table[l].literal, literal) == 0) {
             literal_written[l] = 1;
             break;
@@ -960,8 +958,8 @@ void append_literal_to_text_buffer(char* buffer, int* buffer_len, int* record_st
 }
 
 void generate_text_record(FILE* fp, int start_idx, int end_idx) {
-    int max_text_len = 60;
-    char buffer[70] = {0};
+    int max_text_len = 60; // 한줄의 최대 용량
+    char buffer[70] = {0}; // 앞의 T부터 시작한 크기
     int buffer_len = 0;
     int record_start = -1;
 
@@ -970,13 +968,13 @@ void generate_text_record(FILE* fp, int start_idx, int end_idx) {
         if (!tk->operator) continue;
         
         if(strcmp(tk->operator, "CSECT") == 0) {
-            extref_2_index = 0;
+            extref_2_index = 0; // CSECT를 만나면 Extref_2 테이블을 초기화한다.
             for(int i = 0; i < MAX_OPERAND; i++){
                 extref_2_table[i] = NULL;
             }
         }
 
-        if (strcmp(tk->operator, "LTORG") == 0) {
+        if (strcmp(tk->operator, "LTORG") == 0) { // LTORG를 만났을 때
             for (int l = 0; l < literal_index; l++) {
                 if (!literal_written[l] && literal_table[l].addr >= 0 && literal_table[l].addr < tk->loc) {
                     if (buffer_len > 0) {
@@ -994,10 +992,10 @@ void generate_text_record(FILE* fp, int start_idx, int end_idx) {
         int idx = search_opcode(tk->operator);
         if (idx < 0 && strcmp(tk->operator, "WORD") != 0 && strcmp(tk->operator, "BYTE") != 0) continue;
 
-        char* obj = generate_object_code(tk);
+        char* obj = generate_object_code(tk); // Object 코드 생성
         if (!obj) continue;
 
-        if (record_start == -1) record_start = tk->loc;
+        if (record_start == -1) record_start = tk->loc; // Location counter를 Record_start에 기록한다.
 
         if (buffer_len + strlen(obj) > max_text_len) {
             fprintf(fp, "T%06X%02X%s\n", record_start, buffer_len / 2, buffer);
@@ -1006,12 +1004,12 @@ void generate_text_record(FILE* fp, int start_idx, int end_idx) {
             record_start = tk->loc;
         }
 
-        strcat(buffer, obj);
+        strcat(buffer, obj); // buffer와 Obj를 합친다. 이말은 계속 Object code를 더한다는 뜻이다.
         buffer_len += strlen(obj);
         free(obj);
     }
 
-    for (int l = 0; l < literal_index; l++) {
+    for (int l = 0; l < literal_index; l++) { // 이제 사용되지 않은 literal을 마지막에 출력해야한다. // 작동하지 않음
         if (!literal_written[l] && literal_table[l].addr != -1) {
             if (buffer_len + 2 > max_text_len) {
                 fprintf(fp, "T%06X%02X%s\n", record_start, buffer_len / 2, buffer);
@@ -1034,7 +1032,7 @@ void generate_modification_records(FILE* fp, int start_idx, int end_idx) {
         token* tk = token_table[i];
         char* temp_array[MAX_OPERAND];
         
-        if(strcmp(tk->operator, "EXTREF") == 0) {
+        if(strcmp(tk->operator, "EXTREF") == 0) { // EXTREF를 만나면 extref_2_table에 넣는다.
            extref_2_index = sep_by_comma(tk->operand[0], extref_2_table, MAX_OPERAND);
         }
         
@@ -1045,7 +1043,7 @@ void generate_modification_records(FILE* fp, int start_idx, int end_idx) {
             int temp_each;
             temp_each = sep_by_comma(tk->operand[0], temp_array, MAX_OPERAND);
             for(int k = 0; k < strlen(tk->operand[0]); k++) {
-                if(tk->operand[0][k] == '-'){
+                if(tk->operand[0][k] == '-'){ // 만약 operand에 -가 있으면 양옆으로 나눈다.
                     const char* pos = strpbrk(tk->operand[0], "+-*/");
                     char* operands[2];
                     num_operator = *pos;
@@ -1056,7 +1054,7 @@ void generate_modification_records(FILE* fp, int start_idx, int end_idx) {
                     operands[1] = strdup(pos + 1);
                     // printf("%s / %s \n", operands[0], operands[1]);
                     
-                    strcpy(temp_array[0], operands[0]);
+                    strcpy(temp_array[0], operands[0]); // 그리고 각각의 Operand를 Temp_each에 넣는다.
                     strcpy(temp_array[1], operands[1]);
                     break;
                 }
@@ -1066,7 +1064,7 @@ void generate_modification_records(FILE* fp, int start_idx, int end_idx) {
             
             for(int j = 0; j < temp_each; j++){
                 if(is_in_extref_2_list(temp_array[j]) == 0){
-                    fprintf(fp, "M%06X05+%s\n", tk->loc + 1, temp_array[j]);
+                    fprintf(fp, "M%06X05+%s\n", tk->loc + 1, temp_array[j]); // 그리고 temp_array에 있는 것을 활용하여, modification code를 작성한다.
                 }
             }
         }
@@ -1110,12 +1108,12 @@ void make_objectcode_output(char *file_name) {
         int section_end = section_start;
         int j = i;
         for (; j < token_line; j++) {
-            if (token_table[j]->operator && strcmp(token_table[j]->operator, "CSECT") == 0 && j != i)
+            if (token_table[j]->operator && strcmp(token_table[j]->operator, "CSECT") == 0 && j != i) // csect를 만나면 새로운 모듈이기 때문에 break한다.
                 break;
             section_end = token_table[j]->loc;
         }
 
-        fprintf(fp, "H%-6s%06X%06X\n", section_name, section_start, section_end - section_start);
+        fprintf(fp, "H%-6s%06X%06X\n", section_name, section_start, section_end - section_start); // Header 작성
 
         int def_count = 0;
         for (int k = i; k < j; k++) {
@@ -1148,7 +1146,7 @@ void make_objectcode_output(char *file_name) {
 
         generate_text_record(fp, i, j - 1);
         generate_modification_records(fp, i, j - 1);
-        fprintf(fp, "E%06X\n\n\n", section_start);
+        fprintf(fp, "E%06X\n\n\n", section_start); // 마지막 End 뒤에 시작 주소를 붙여야한다. 하지만 RDREC, WRREC는 붙이지 않는다. 하지만 그것을 구현하지 못하였다.
 
         i = j;
     }

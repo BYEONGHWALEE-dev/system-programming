@@ -390,23 +390,6 @@ public class Assembler {
 
 		// 마지막 Section의 modificationTable도 추가
 		modList.add(modificationTable);
-
-		/*
-		System.out.println("\n===== Modification Records by Section =====");
-
-		for (int sectionIndex = 0; sectionIndex < modList.size(); sectionIndex++) {
-			ModificationTable modTable = modList.get(sectionIndex);
-			System.out.println("Section " + sectionIndex + ":");
-
-			for (ModificationRecord rec : modTable.modificationTable) {
-				System.out.println("  " + rec);  // rec.toString() 자동 호출 → M 레코드 형식
-			}
-
-			if (modTable.modificationTable.isEmpty()) {
-				System.out.println("  (No modification records)");
-			}
-		}
-		 */
 	}
 
 	/**
