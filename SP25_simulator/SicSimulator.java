@@ -36,12 +36,18 @@ public class SicSimulator {
 	 * 1개의 instruction이 수행된 모습을 보인다.
 	 */
 	public void oneStep() {
+		int pc = rMgr.getRegister(8);
+		rMgr.setRegister(0, rMgr.getRegister(0) + 5);
+		rMgr.setRegister(0, pc + 3);
 	}
 
 	/**
 	 * 남은 모든 instruction이 수행된 모습을 보인다.
 	 */
 	public void allStep() {
+		for(int i = 0; i < 10; i++) {
+			oneStep();
+		}
 	}
 
 	/**

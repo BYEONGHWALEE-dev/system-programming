@@ -67,6 +67,7 @@ public class VisualSimulatorGUI extends JFrame{
         headerPanel.setBorder(BorderFactory.createTitledBorder("H (HeaderRecord)"));
         headerPanel.add(new JLabel("Program name : "));
         progNameField = new JTextField();
+        startAddrField = new JTextField();;
         headerPanel.add(startAddrField);
 
         headerPanel.add(new JLabel("Length of Program : "));
@@ -145,6 +146,8 @@ public class VisualSimulatorGUI extends JFrame{
         logPanel.add(new JScrollPane(logArea), BorderLayout.CENTER);
         add(logPanel, BorderLayout.SOUTH);
 
+        // ============================ Listener ===============================
+
         // 파일 열기 버튼
         openBtn.addActionListener(e -> {
             JFileChooser fileChooser = new JFileChooser();
@@ -160,6 +163,18 @@ public class VisualSimulatorGUI extends JFrame{
                 stepBtn.setEnabled(true);
                 allBtn.setEnabled(true);
             }
+        });
+
+        stepBtn.addActionListener(e -> {
+            visualSimulator.oneStep();
+            visualSimulator.update(this);
+            log("한 단계 실행 완료");
+        });
+
+        allBtn.addActionListener(e -> {
+            visualSimulator.allStep();
+            visualSimulator.update(this);
+            log("전체 실행 완료");
         });
     }
 
