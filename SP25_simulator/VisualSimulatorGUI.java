@@ -2,8 +2,14 @@ package SP25_simulator;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.File;
+
+import static java.rmi.server.LogStream.log;
 
 public class VisualSimulatorGUI extends JFrame{
+
+    // VisualSimulator와 연결
+    private VisualSimulator visualSimulator = new VisualSimulator();
 
     // 상단
     private JTextField fileNameField;
@@ -138,6 +144,50 @@ public class VisualSimulatorGUI extends JFrame{
         logArea.setEditable(false);
         logPanel.add(new JScrollPane(logArea), BorderLayout.CENTER);
         add(logPanel, BorderLayout.SOUTH);
+
+        // 파일 열기 버튼
+        openBtn.addActionListener(e -> {
+            JFileChooser fileChooser = new JFileChooser();
+            int result = fileChooser.showOpenDialog(this);
+            if(result == JFileChooser.APPROVE_OPTION) {
+                File file = fileChooser.getSelectedFile();
+                fileNameField.setText(file.getAbsolutePath());
+
+                visualSimulator.load(file);
+                visualSimulator.update(this);
+
+                log("파일 로드 완료" + file.getName());
+                stepBtn.setEnabled(true);
+                allBtn.setEnabled(true);
+            }
+        });
+    }
+
+    // 로그 출력
+    private void log(String msg) {
+        logArea.append(msg + "\n");
+    }
+
+    // 레지스터 set
+    public void setRegisterField(int regNum, int value){
+        if(regNum < 0 || regNum >= regDecFields.length) return;
+
+        regDecFields[regNum].setText(String.valueOf(value));
+        regHexFields[regNum].setText(Integer.toHexString(value).toUpperCase());
+    }
+
+    // Header info
+    public void setHeaderInfo(String name, String startAddr, String length) {
+        progNameField.setText(name);
+        startAddrField.setText(startAddr);
+        progLengthField.setText(length);
+    }
+
+    // End info
+    public void setEndInfo(String execAddr, String memsStart, String targetAddr) {
+        endAddrField.setText(execAddr);
+        memoryStartField.setText(memsStart);
+        targetAddrField.setText(targetAddr);
     }
 
     public static void main(String[] args) {
@@ -146,6 +196,4 @@ public class VisualSimulatorGUI extends JFrame{
             gui.setVisible(true);
         });
     }
-
-
 }

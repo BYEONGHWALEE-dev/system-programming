@@ -28,6 +28,9 @@ public class ResourceManager {
 	 * 이것도 복잡하면 알아서 구현해서 사용해도 괜찮습니다.
 	 */
 	HashMap<String, Object> deviceManager = new HashMap<String, Object>();
+	// 디바이스
+	HashMap<String, Object> getDeviceManager = new HashMap<>();
+
 	char[] memory = new char[65536]; // String으로 수정해서 사용하여도 무방함.
 	int[] register = new int[10];
 	double register_F;
@@ -35,11 +38,20 @@ public class ResourceManager {
 	SymbolTable symtabList;
 	// 이외에도 필요한 변수 선언해서 사용할 것.
 
+	// Metadata
+	private String programName = "TEST";
+	private String startAddress = "1000";
+	private String programLength = "002A";
+	private String executionStartAddress = "1000";
+	private String memoryStartAddress = "1000";
+	private String targetAddress = "1033";
+
 	/**
 	 * 메모리, 레지스터등 가상 리소스들을 초기화한다.
 	 */
 	public void initializeResource() {
-
+		for(int i = 0; i < register.length; i++) register[i] = 0;
+		for(int i = 0; i < memory.length; i++) memory[i] = 0;
 	}
 
 	/**
@@ -91,7 +103,10 @@ public class ResourceManager {
 	 * @return 가져오는 데이터
 	 */
 	public char[] getMemory(int location, int num) {
-		return null;
+		if(location  < 0 || location + num > memory.length) return null;
+		char[] result = new char[num];
+		System.arraycopy(memory, location, result, 0, num);
+		return result;
 
 	}
 
@@ -103,7 +118,9 @@ public class ResourceManager {
 	 * @param num    저장하는 데이터의 개수
 	 */
 	public void setMemory(int locate, char[] data, int num) {
-
+		if(locate >= 0 && locate + num <= memory.length) {
+			System.arraycopy(data, 0, memory, locate, num);
+		}
 	}
 
 	/**
@@ -113,8 +130,8 @@ public class ResourceManager {
 	 * @return 레지스터가 소지한 값
 	 */
 	public int getRegister(int regNum) {
-		return 0;
-
+		if(regNum < 0 || regNum >= register.length) return 0;
+		return register[regNum];
 	}
 
 	/**
@@ -124,7 +141,7 @@ public class ResourceManager {
 	 * @param value  레지스터에 집어넣는 값
 	 */
 	public void setRegister(int regNum, int value) {
-
+		if(regNum >=0 && regNum < register.length) register[regNum] = value;
 	}
 
 	/**
@@ -134,7 +151,7 @@ public class ResourceManager {
 	 * @return
 	 */
 	public char[] intToChar(int data) {
-		return null;
+		return Integer.toHexString(data).toCharArray();
 	}
 
 	/**
@@ -144,6 +161,48 @@ public class ResourceManager {
 	 * @return
 	 */
 	public int byteToInt(byte[] data) {
-		return 0;
+		int result = 0;
+		for(byte b : data) {
+			result = (result << 8) | (b & 0xff);
+		}
+		return result;
+	}
+
+	// ===================== 프로그램 정보 Getter ======================
+	public String getProgramName() {
+		return programName;
+	}
+
+	public String getStartAddress() {
+		return startAddress;
+	}
+
+	public String getProgramLength() {
+		return programLength;
+	}
+
+	public String getExecutionStartAddress() {
+		return executionStartAddress;
+	}
+
+	public String getMemoryStartAddress() {
+		return memoryStartAddress;
+	}
+
+	public String getTargetAddress() {
+		return targetAddress;
+	}
+
+	// Setter for loader use
+	public void setProgramInfo(String name, String start, String length) {
+		this.programName = name;
+		this.startAddress = start;
+		this.programLength = length;
+	}
+
+	public void setEndInfo(String execStart, String memStart, String target){
+		this.executionStartAddress = execStart;
+		this.memoryStartAddress = memStart;
+		this.targetAddress = target;
 	}
 }

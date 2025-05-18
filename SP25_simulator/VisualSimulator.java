@@ -40,8 +40,26 @@ public class VisualSimulator {
 	/**
 	 * 화면을 최신값으로 갱신하는 역할을 수행한다.
 	 */
-	public void update() {
+	public void update(VisualSimulatorGUI gui) {
+		// 레지스터
+		for(int i =0; i <= 9; i++) {
+			int val = resourceManager.getRegister(i);
+			gui.setRegisterField(i, val);
+		}
 
+		// Header 정보
+		gui.setHeaderInfo(
+				resourceManager.getProgramName(),
+				resourceManager.getStartAddress(),
+				resourceManager.getProgramLength()
+		);
+
+		// End 정보
+		gui.setEndInfo(
+				resourceManager.getExecutionStartAddress(),
+				resourceManager.getMemoryStartAddress(),
+				resourceManager.getTargetAddress()
+		);
 	};
 
 	public static void main(String[] args) {
