@@ -1,8 +1,11 @@
 package SP25_simulator;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Scanner;
 
 /**
  * ResourceManager는 컴퓨터의 가상 리소스들을 선언하고 관리하는 클래스이다. 크게 네가지의 가상 자원 공간을 선언하고, 이를
@@ -59,7 +62,14 @@ public class ResourceManager {
 	 * 호출한다.
 	 */
 	public void closeDevice() {
-
+		for(Object obj : deviceManager.values()) {
+			if(obj instanceof Scanner scanner) {
+				scanner.close();
+			} else if (obj instanceof PrintWriter writer) {
+				writer.close();
+			}
+		}
+		deviceManager.clear();
 	}
 
 	/**
@@ -68,8 +78,8 @@ public class ResourceManager {
 	 * 
 	 * @param devName 확인하고자 하는 디바이스의 번호,또는 이름
 	 */
-	public void testDevice(String devName) {
-
+	public boolean testDevice(String devName) {
+		return deviceManager.containsKey(devName);
 	}
 
 	/**
@@ -80,7 +90,29 @@ public class ResourceManager {
 	 * @return 가져온 데이터
 	 */
 	public char[] readDevice(String devName, int num) {
-		return null;
+		try{
+			Scanner scanner;
+
+			// 이미 열린 경우
+			if(deviceManager.containsKey(devName)) {
+				scanner = (Scanner) deviceManager.get(devName);
+			} else {
+				// 없으면 열어야 함
+				File file = new File(devName + "txt");
+				scanner = new Scanner(file);
+				deviceManager.put(devName, scanner);
+			}
+
+			StringBuilder sb = new StringBuilder();
+			while(scanner.hasNext() && sb.length() < num) {
+				sb.append(scanner.next().charAt(0)); // 공백 단위로
+			}
+
+			return sb.toString().toCharArray();
+		} catch (Exception e) {
+			System.err.println(e.getMessage());
+			return new char[0];
+		}
 
 	}
 
@@ -92,7 +124,26 @@ public class ResourceManager {
 	 * @param num     보내는 글자의 개수
 	 */
 	public void writeDevice(String devName, char[] data, int num) {
+		try{
+			PrintWriter writer;
 
+			// 이미 열림
+			if(deviceManager.containsKey(devName)) {
+				writer = (PrintWriter) deviceManager.get(devName);
+			} else {
+				File file = new File(devName + "_out.txt");
+				writer = new PrintWriter(new FileWriter(file, true));
+				deviceManager.put(devName, writer);
+			}
+
+			for(int i = 0; i < num && i < data.length; i++) {
+				writer.print(data[i]);
+			}
+
+			writer.flush();
+		} catch (Exception e) {
+			System.err.println(e.getMessage());
+		}
 	}
 
 	/**

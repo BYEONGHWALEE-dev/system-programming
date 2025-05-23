@@ -12,7 +12,11 @@ import java.io.File;
 public class VisualSimulator {
 	ResourceManager resourceManager = new ResourceManager();
 	SicLoader sicLoader = new SicLoader(resourceManager);
-	SicSimulator sicSimulator = new SicSimulator(resourceManager);
+
+	String instFilePath = "inst.data";
+	SicSimulator sicSimulator = new SicSimulator(resourceManager, instFilePath);
+
+	VisualSimulatorGUI gui = new VisualSimulatorGUI();
 
 	/**
 	 * 프로그램 로드 명령을 전달한다.
@@ -26,15 +30,15 @@ public class VisualSimulator {
 	/**
 	 * 하나의 명령어만 수행할 것을 SicSimulator에 요청한다.
 	 */
-	public void oneStep() {
-		sicSimulator.oneStep();
+	public void oneStep(VisualSimulatorGUI gui) {
+		sicSimulator.oneStep(gui);
 	};
 
 	/**
 	 * 남아있는 모든 명령어를 수행할 것을 SicSimulator에 요청한다.
 	 */
-	public void allStep() {
-		sicSimulator.allStep();
+	public void allStep(VisualSimulatorGUI gui) {
+		sicSimulator.allStep(gui);
 	};
 
 	/**

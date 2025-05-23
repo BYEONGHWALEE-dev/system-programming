@@ -1,6 +1,9 @@
 package SP25_simulator;
 
 import java.io.File;
+import java.lang.reflect.Executable;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 시뮬레이터로서의 작업을 담당한다. VisualSimulator에서 사용자의 요청을 받으면 이에 따라 ResourceManager에 접근하여
@@ -18,10 +21,17 @@ import java.io.File;
  */
 public class SicSimulator {
 	ResourceManager rMgr;
+	InstLuncher instLuncher;
+	InstTable instTable;
 
-	public SicSimulator(ResourceManager resourceManager) {
+	List<ExecutableInstruction> instructionQueue = new ArrayList<>();
+	int currentInstructionIndex = 0;
+
+	public SicSimulator(ResourceManager resourceManager, String instFile) {
 		// 필요하다면 초기화 과정 추가
 		this.rMgr = resourceManager;
+		this.instLuncher = new InstLuncher(resourceManager);
+		this.instTable = new InstTable(instFile);
 	}
 
 	/**
@@ -30,23 +40,36 @@ public class SicSimulator {
 	 */
 	public void load(File program) {
 		/* 메모리 초기화, 레지스터 초기화 등 */
+		rMgr.initializeResource();
+		currentInstructionIndex = 0;
+		instructionQueue.clear();
+		// 실제 instructionQueue는 SicLoader에서 채운다
 	}
 
 	/**
 	 * 1개의 instruction이 수행된 모습을 보인다.
 	 */
-	public void oneStep() {
-		int pc = rMgr.getRegister(8);
-		rMgr.setRegister(0, rMgr.getRegister(0) + 5);
-		rMgr.setRegister(0, pc + 3);
+	public void oneStep(VisualSimulatorGUI gui) {
+		if(currentInstructionIndex >= instructionQueue.size()) return;
+
+		ExecutableInstruction inst = instructionQueue.get(currentInstructionIndex);
+		char[] bytes = hexStringToCharArray(inst.objectCode);
+
+		Instruction info = instTable.getByMnemonic(inst.mnmonic);
+		instLuncher.execute(info, bytes);
+
+		gui.appendLog(String.format("실행 : %s (%s) at 0x04X", inst.mnmonic, inst.objectCode, inst.address));
+		gui.update(this);
+
+		currentInstructionIndex++;
 	}
 
 	/**
 	 * 남은 모든 instruction이 수행된 모습을 보인다.
 	 */
-	public void allStep() {
-		for(int i = 0; i < 10; i++) {
-			oneStep();
+	public void allStep(VisualSimulatorGUI gui) {
+		while(currentInstructionIndex < instructionQueue.size()) {
+			oneStep(gui);
 		}
 	}
 
@@ -55,4 +78,30 @@ public class SicSimulator {
 	 */
 	public void addLog(String log) {
 	}
+
+/**
+ * object  code (hex String_ -> char[]로 변환
+ */
+	private char[] hexStringToCharArray(String hex) {
+		int len = hex.length();
+		char[] result = new char[len / 2];
+		for(int i = 0; i < len; i += 2) {
+			result[i / 2] = (char) Integer.parseInt(hex.substring(i, i + 2), 16);
+		}
+		return result;
+	}
+
+	/**
+	 * 외부에서 instruction list를 받아올 수 있게
+	 */
+	public void setInstructionQueue(List<ExecutableInstruction> list) {
+		instructionQueue.clear();
+		instructionQueue.addAll(list);
+	}
+
+	public int getRegister(int regNum){
+		return rMgr.getRegister(regNum);
+	}
+
 }
+

@@ -166,15 +166,11 @@ public class VisualSimulatorGUI extends JFrame{
         });
 
         stepBtn.addActionListener(e -> {
-            visualSimulator.oneStep();
-            visualSimulator.update(this);
-            log("한 단계 실행 완료");
+            visualSimulator.oneStep(this);
         });
 
         allBtn.addActionListener(e -> {
-            visualSimulator.allStep();
-            visualSimulator.update(this);
-            log("전체 실행 완료");
+            visualSimulator.allStep(this);
         });
     }
 
@@ -205,10 +201,23 @@ public class VisualSimulatorGUI extends JFrame{
         targetAddrField.setText(targetAddr);
     }
 
+    // add log on Log area
+    public void appendLog(String message) {
+        logArea.append(message + "\n");
+    }
+
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             VisualSimulatorGUI gui = new VisualSimulatorGUI();
             gui.setVisible(true);
         });
+    }
+
+    public void updateView(SicSimulator sim) {
+        for(int i = 0; i < 10; i++) {
+            int val = sim.getRegister(i);
+            regDecFields[i].setText(String.valueOf(val));
+            regHexFields[i].setText(Integer.toHexString(val).toUpperCase());
+        }
     }
 }
