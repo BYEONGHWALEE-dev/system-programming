@@ -234,12 +234,11 @@ public class InstLuncher {
         int disp = fetchDisp(bytes, flags[5]);
         int addr = resolveTargetAddr(disp, flags);
 
-        // 디바이스
-        String dev = String.valueOf(addr);
-        boolean available = rMgr.testDevice(dev);
-
+        String devKey = resolveDeviceKey(addr);
+        boolean available = rMgr.testDevice(devKey);
         rMgr.setRegister(9, available ? 1 : 0);
-        System.out.printf("✔ TD → Test Device %s → SW = %d\n", dev, available ? 1 : 0);
+
+        System.out.printf("✔ TD → Test Device %s → SW = %d\n", devKey, available ? 1 : 0);
     }
 
     private void doRd(char[] bytes) {
@@ -247,12 +246,12 @@ public class InstLuncher {
         int disp = fetchDisp(bytes, flags[5]);
         int addr = resolveTargetAddr(disp, flags);
 
-        String dev = String.valueOf(addr);
-        char[] data = rMgr.readDevice(dev, 1);
+        String devKey = resolveDeviceKey(addr);
+        char[] data = rMgr.readDevice(devKey, 1);
         int value = (data != null && data.length > 0) ? data[0] & 0xFF : 0;
 
         rMgr.setRegister(0, value);
-        System.out.printf("✔ RD → A ← Device[%s] = %02X\n", dev, value);
+        System.out.printf("✔ RD → A ← Device[%s] = %02X\n", devKey, value);
     }
 
     private void doWd(char[] bytes) {
@@ -260,12 +259,12 @@ public class InstLuncher {
         int disp = fetchDisp(bytes, flags[5]);
         int addr = resolveTargetAddr(disp, flags);
 
-        String dev = String.valueOf(addr);
+        String devKey = resolveDeviceKey(addr);
         int a = rMgr.getRegister(0);
-        char[] data = {(char)(a & 0xFF)}; //하위 1바이트만 허용
+        char[] data = {(char)(a & 0xFF)};
 
-        rMgr.writeDevice(dev, data,1);
-        System.out.printf("✔ WD → Device[%s] ← A = %02X\n", dev, a & 0xFF);
+        rMgr.writeDevice(devKey, data, 1);
+        System.out.printf("✔ WD → Device[%s] ← A = %02X\n", devKey, a & 0xFF);
     }
 
     // ============================ Utility =========================
@@ -333,6 +332,10 @@ public class InstLuncher {
             char[] data = rMgr.getMemory(addr, 3);
             return toInt(data);
         }
+    }
+
+    private String resolveDeviceKey(int addr) {
+        return String.format("D%02X", addr & 0xFF);
     }
 
     private int getR1(char[] bytes) {

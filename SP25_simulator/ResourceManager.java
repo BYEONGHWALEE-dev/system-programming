@@ -228,6 +228,10 @@ public class ResourceManager {
 		return startAddress;
 	}
 
+	public int getStartAddressInt() {
+		return Integer.parseInt(startAddress);
+	}
+
 	public String getProgramLength() {
 		return programLength;
 	}

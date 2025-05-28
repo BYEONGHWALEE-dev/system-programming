@@ -23,6 +23,7 @@ public class SicSimulator {
 	ResourceManager rMgr;
 	InstLuncher instLuncher;
 	InstTable instTable;
+	private VisualSimulatorGUI guiRef;
 
 	List<ExecutableInstruction> instructionQueue = new ArrayList<>();
 	int currentInstructionIndex = 0;
@@ -50,17 +51,45 @@ public class SicSimulator {
 	 * 1개의 instruction이 수행된 모습을 보인다.
 	 */
 	public void oneStep(VisualSimulatorGUI gui) {
-		if(currentInstructionIndex >= instructionQueue.size()) return;
+		if (currentInstructionIndex >= instructionQueue.size()) return;
 
 		ExecutableInstruction inst = instructionQueue.get(currentInstructionIndex);
-		char[] bytes = hexStringToCharArray(inst.objectCode);
+		char[] bytes = hexStringToCharArray(inst.getObjectCode());
 
-		Instruction info = instTable.getByMnemonic(inst.mnmonic);
-		instLuncher.execute(info, bytes);
+		int rawOpcode = bytes[0] & 0xFC;
+		Instruction info = instTable.getByOpcode(rawOpcode);
 
-		gui.appendLog(String.format("실행 : %s (%s) at 0x04X", inst.mnmonic, inst.objectCode, inst.address));
-		gui.update(this);
+		String logMsg;
+		if (info != null) {
+			instLuncher.execute(info, bytes);
 
+			String mnemonic = info.getMnemonic();
+			logMsg = String.format("실행 : %s (%s) at 0x%04X", mnemonic, inst.getObjectCode(), inst.getAddress());
+
+			gui.appendLog(logMsg);
+			gui.showCurrentInstruction(
+					String.format("%04X", inst.getAddress()),
+					inst.getObjectCode(),
+					mnemonic
+			);
+
+			// rsub 종료 감지 용
+			if(info.getMnemonic().equals("RSUB") && rMgr.getRegister(8) == 0) {
+				gui.appendLog("RSUB 실행 후 종료 감지 : PC = 0 -> 프로그램 종료");
+			}
+		} else {
+			logMsg = String.format("⚠ 알 수 없는 명령어: %s at 0x%04X", inst.getObjectCode(), inst.getAddress());
+
+			gui.appendLog(logMsg);
+			gui.showCurrentInstruction(
+					String.format("%04X", inst.getAddress()),
+					inst.getObjectCode(),
+					"UNKNOWN"
+			);
+		}
+
+		addLog(logMsg);
+		gui.update(rMgr);
 		currentInstructionIndex++;
 	}
 
@@ -77,6 +106,9 @@ public class SicSimulator {
 	 * 각 단계를 수행할 때 마다 관련된 기록을 남기도록 한다.
 	 */
 	public void addLog(String log) {
+		if(guiRef != null) {
+			guiRef.appendLog(log);
+		}
 	}
 
 /**
@@ -101,6 +133,10 @@ public class SicSimulator {
 
 	public int getRegister(int regNum){
 		return rMgr.getRegister(regNum);
+	}
+
+	public void setGuiRef(VisualSimulatorGUI guiRef) {
+		this.guiRef = guiRef;
 	}
 
 }

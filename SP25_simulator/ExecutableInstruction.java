@@ -2,15 +2,19 @@ package SP25_simulator;
 
 
 public class ExecutableInstruction {
-    public final String objectCode;
-    public final int address;
-    public final String mnmonic;
+    private final int address;
+    private final String objectCode;
 
-    public ExecutableInstruction(String objectCode, int address, String mnmonic) {
-        this.objectCode = objectCode;
+    public ExecutableInstruction(int address, String objectCode) {
         this.address = address;
-        this.mnmonic = mnmonic;
+        this.objectCode = objectCode;
     }
 
+    public int getAddress() {
+        return address;
+    }
 
+    public String getObjectCode() {
+        return objectCode;
+    }
 }

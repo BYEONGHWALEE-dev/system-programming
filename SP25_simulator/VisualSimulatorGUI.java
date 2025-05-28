@@ -8,6 +8,11 @@ import static java.rmi.server.LogStream.log;
 
 public class VisualSimulatorGUI extends JFrame{
 
+    private final ResourceManager resourceManager = new ResourceManager();
+    private final SicSimulator sicSimulator = new SicSimulator(resourceManager, "inst.data");
+    private final SicLoader sicLoader = new SicLoader(resourceManager, sicSimulator);
+
+
     // VisualSimulator와 연결
     private VisualSimulator visualSimulator = new VisualSimulator();
 
@@ -32,7 +37,7 @@ public class VisualSimulatorGUI extends JFrame{
     private JTextField deviceField;
 
     // 버튼
-    private JButton stepBtn, allBtn,  exitBtn;
+    private JButton stepBtn, allBtn, exitBtn, resetBtn;
 
     // 로그
     private JTextArea logArea;
@@ -68,6 +73,7 @@ public class VisualSimulatorGUI extends JFrame{
         headerPanel.add(new JLabel("Program name : "));
         progNameField = new JTextField();
         startAddrField = new JTextField();;
+        headerPanel.add(progNameField);
         headerPanel.add(startAddrField);
 
         headerPanel.add(new JLabel("Length of Program : "));
@@ -96,7 +102,7 @@ public class VisualSimulatorGUI extends JFrame{
 
         JPanel endInstPanel = new JPanel(new GridLayout(3, 1));
 
-        JPanel endPanel = new JPanel(new GridLayout(3,1));
+        JPanel endPanel = new JPanel(new GridLayout(3,2));
         endPanel.setBorder(BorderFactory.createTitledBorder("E (End Record{"));
         endPanel.add(new JLabel("Address of First instruction of Object Program : "));
         endAddrField = new JTextField();
@@ -124,13 +130,15 @@ public class VisualSimulatorGUI extends JFrame{
         endInstPanel.add(devicePanel);
 
         // Buttons
-        JPanel btnPanel = new JPanel(new BorderLayout());
+        JPanel btnPanel = new JPanel(new FlowLayout());
         stepBtn = new JButton("실행(1step");
         allBtn = new JButton("실행(all)");
         exitBtn = new JButton("종료");
+        resetBtn = new JButton("초기화");
         btnPanel.add(stepBtn);
         btnPanel.add(allBtn);
         btnPanel.add(exitBtn);
+        btnPanel.add(resetBtn);
         endInstPanel.add(btnPanel);
 
         rightPanel.add(endInstPanel, BorderLayout.CENTER);
@@ -156,21 +164,25 @@ public class VisualSimulatorGUI extends JFrame{
                 File file = fileChooser.getSelectedFile();
                 fileNameField.setText(file.getAbsolutePath());
 
-                visualSimulator.load(file);
-                visualSimulator.update(this);
+                sicLoader.load(file);
+                update(resourceManager);
+                log("파일 로드 완료: "+ file.getName());
 
-                log("파일 로드 완료" + file.getName());
                 stepBtn.setEnabled(true);
                 allBtn.setEnabled(true);
             }
         });
 
         stepBtn.addActionListener(e -> {
-            visualSimulator.oneStep(this);
+            sicSimulator.oneStep(this);
         });
 
         allBtn.addActionListener(e -> {
-            visualSimulator.allStep(this);
+            sicSimulator.allStep(this);
+        });
+
+        resetBtn.addActionListener(e -> {
+            reset();
         });
     }
 
@@ -219,5 +231,43 @@ public class VisualSimulatorGUI extends JFrame{
             regDecFields[i].setText(String.valueOf(val));
             regHexFields[i].setText(Integer.toHexString(val).toUpperCase());
         }
+    }
+
+    public void update(ResourceManager resourceManager) {
+        // 헤더 정보 최신화
+        progNameField.setText(resourceManager.getProgramName());
+        startAddrField.setText(resourceManager.getStartAddress());
+        progLengthField.setText(resourceManager.getProgramLength());
+
+        // End Record 정보가 있다면 갱신
+        if(endAddrField != null) endAddrField.setText(resourceManager.getExecutionStartAddress());
+        if(memoryStartField != null) memoryStartField.setText(resourceManager.getStartAddress());
+        if(targetAddrField != null) targetAddrField.setText(resourceManager.getTargetAddress());
+
+        // 레지스터 정보 갱신
+        for(int i = 0; i < regNums.length; i++) {
+            if (i == 6) {  // F 레지스터 (float)
+                double fVal = resourceManager.register_F;
+                if(regDecFields[i] != null) regDecFields[i].setText(String.format("%.2f", fVal));
+                if(regHexFields[i] != null) regHexFields[i].setText(String.format("%06X", (int) fVal));
+            } else {
+                int value = resourceManager.getRegister(regNums[i]);
+                if(regDecFields[i] != null) regDecFields[i].setText(String.valueOf(value));
+                if(regHexFields[i] != null) regHexFields[i].setText(String.format("%06X", value));
+            }
+        }
+    }
+
+    public void showCurrentInstruction(String address, String objectCode, String mnemonic){
+        String line = String.format("0x%04X :  %s (%s)", Integer.parseInt(address, 16), objectCode, mnemonic);
+        instructionArea.append(line + "\n");
+    }
+
+    private void reset() {
+        resourceManager.initializeResource();
+        update(resourceManager);
+        logArea.setText("");
+        instructionArea.setText("");
+        log("시스템 초기화 완료");
     }
 }

@@ -52,8 +52,14 @@ public class InstTable {
         return instMap.get(mnemonic);
     }
 
-    public Instruction getByOpcode(int opcode) {
-        return opcodeMap.get(opcode);
+    public Instruction getByOpcode(int opcode){
+        for(Instruction inst : instMap.values()) {
+            // opcode 상위 6비트만 비교(format 3/4 기준)
+            if((inst.getOpcode() & 0xFC) == (opcode & 0xFC)){
+                return inst;
+            }
+        }
+        return null;
     }
 
     public int getFormatOfInstruction(String mnemonic) {
@@ -82,4 +88,6 @@ public class InstTable {
     public int getInstMapLength() {
         return instMap.size();
     }
+
+
 }

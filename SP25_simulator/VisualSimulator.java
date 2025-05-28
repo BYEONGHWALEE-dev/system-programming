@@ -11,10 +11,9 @@ import java.io.File;
  */
 public class VisualSimulator {
 	ResourceManager resourceManager = new ResourceManager();
-	SicLoader sicLoader = new SicLoader(resourceManager);
-
 	String instFilePath = "inst.data";
 	SicSimulator sicSimulator = new SicSimulator(resourceManager, instFilePath);
+	SicLoader sicLoader = new SicLoader(resourceManager, sicSimulator);
 
 	VisualSimulatorGUI gui = new VisualSimulatorGUI();
 
