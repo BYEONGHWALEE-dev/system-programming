@@ -1,88 +1,140 @@
 package SP25_simulator;
 
+import SP25_simulator.section.SectionInfo;
+import SP25_simulator.section.TextRecord;
 import java.io.File;
-import java.lang.reflect.Executable;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * 시뮬레이터로서의 작업을 담당한다. VisualSimulator에서 사용자의 요청을 받으면 이에 따라 ResourceManager에 접근하여
- * 작업을 수행한다.
- * 
- * 작성중의 유의사항 : 1) 새로운 클래스, 새로운 변수, 새로운 함수 선언은 얼마든지 허용됨. 단, 기존의 변수와 함수들을 삭제하거나
- * 완전히 대체하는 것은 지양할 것. 2) 필요에 따라 예외처리, 인터페이스 또는 상속 사용 또한 허용됨. 3) 모든 void 타입의 리턴값은
- * 유저의 필요에 따라 다른 리턴 타입으로 변경 가능. 4) 파일, 또는 콘솔창에 한글을 출력시키지 말 것. (채점상의 이유. 주석에 포함된
- * 한글은 상관 없음)
- * 
- * 
- * 
- * + 제공하는 프로그램 구조의 개선방법을 제안하고 싶은 분들은 보고서의 결론 뒷부분에 첨부 바랍니다. 내용에 따라 가산점이 있을 수
- * 있습니다.
- */
 public class SicSimulator {
-	ResourceManager rMgr;
-	InstLuncher instLuncher;
-	InstTable instTable;
+	private ResourceManager rMgr;
+	private InstLuncher instLuncher;
+	private InstTable instTable;
 	private VisualSimulatorGUI guiRef;
 
-	List<ExecutableInstruction> instructionQueue = new ArrayList<>();
-	int currentInstructionIndex = 0;
+	// 새로 추가: 섹션 리스트와 현재 섹션 이름 프로퍼티
+	private List<SectionInfo> sections = new ArrayList<>();
+	private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
+	private String currentSectionName = "";
+
+	// 실행할 명령어 큐
+	private List<ExecutableInstruction> instructionQueue = new ArrayList<>();
+	private int currentInstructionIndex = 0;
 
 	public SicSimulator(ResourceManager resourceManager, String instFile) {
-		// 필요하다면 초기화 과정 추가
 		this.rMgr = resourceManager;
 		this.instLuncher = new InstLuncher(resourceManager);
 		this.instTable = new InstTable(instFile);
 	}
 
-	/**
-	 * 레지스터, 메모리 초기화 등 프로그램 load와 관련된 작업 수행. 단, object code의 메모리 적재 및 해석은
-	 * SicLoader에서 수행하도록 한다.
-	 */
+	/** 모델에 섹션 리스트를 설정하고, 기본 현재 섹션을 첫 섹션으로 초기화 */
+	public void setSections(List<SectionInfo> sections) {
+		this.sections.clear();
+		this.sections.addAll(sections);
+		if (!sections.isEmpty()) {
+			setCurrentSection(sections.getFirst().getSectionName());
+		}
+	}
+
+	public List<SectionInfo> getSections() {
+		return sections;
+	}
+
+	/** 현재 섹션 변경 시 이벤트 발행 */
+	private void setCurrentSection(String newSection) {
+		String old = this.currentSectionName;
+		this.currentSectionName = newSection;
+		pcs.firePropertyChange("currentSection", old, newSection);
+		// GUI에도 즉시 반영
+		if (guiRef != null) {
+			guiRef.showCurrentSection(newSection);
+		}
+	}
+
+	public String getCurrentSection() {
+		return this.currentSectionName;
+	}
+
+	public void addPropertyChangeListener(PropertyChangeListener listener) {
+		pcs.addPropertyChangeListener(listener);
+	}
+
+	public void removePropertyChangeListener(PropertyChangeListener listener) {
+		pcs.removePropertyChangeListener(listener);
+	}
+
+	/** 메모리·레지스터 초기화 및 명령어 큐 초기화 */
 	public void load(File program) {
-		/* 메모리 초기화, 레지스터 초기화 등 */
 		rMgr.initializeResource();
 		currentInstructionIndex = 0;
 		instructionQueue.clear();
-		// 실제 instructionQueue는 SicLoader에서 채운다
 	}
 
-	/**
-	 * 1개의 instruction이 수행된 모습을 보인다.
-	 */
+	/** 한 단계 실행 및 GUI 업데이트 */
 	public void oneStep(VisualSimulatorGUI gui) {
 		if (currentInstructionIndex >= instructionQueue.size()) return;
 
 		ExecutableInstruction inst = instructionQueue.get(currentInstructionIndex);
+		int addr = inst.getAddress();
+
+		// 실행 전 현재 섹션 업데이트
+		for (SectionInfo sec : sections) {
+			int start = sec.getStartAddress();
+			int end = start + sec.getLength();
+			if (addr >= start && addr < end) {
+				if (!sec.getSectionName().equals(currentSectionName)) {
+					setCurrentSection(sec.getSectionName());
+				}
+				break;
+			}
+		}
+
 		char[] bytes = hexStringToCharArray(inst.getObjectCode());
+		if (bytes.length < 2) {
+			String warn = String.format("⚠ 명령어 길이 부족: %s at 0x%04X", inst.getObjectCode(), addr);
+			gui.appendLog(warn);
+			addLog(warn);
+			currentInstructionIndex++;
+			return;
+		}
 
 		int rawOpcode = bytes[0] & 0xFC;
 		Instruction info = instTable.getByOpcode(rawOpcode);
-
 		String logMsg;
-		if (info != null) {
-			instLuncher.execute(info, bytes);
 
+		if (info != null) {
+			boolean format4 = (bytes[1] & 0x01) == 1;
+			if (format4 && bytes.length < 4) {
+				String warn = String.format(
+						"⚠ Format 4 명령어인데 object code 길이가 부족합니다: %s at 0x%04X",
+						inst.getObjectCode(), addr);
+				gui.appendLog(warn);
+				addLog(warn);
+				currentInstructionIndex++;
+				return;
+			}
+
+			instLuncher.execute(info, bytes);
 			String mnemonic = info.getMnemonic();
-			logMsg = String.format("실행 : %s (%s) at 0x%04X", mnemonic, inst.getObjectCode(), inst.getAddress());
+			logMsg = String.format("실행 : %s (%s) at 0x%04X", mnemonic, inst.getObjectCode(), addr);
 
 			gui.appendLog(logMsg);
 			gui.showCurrentInstruction(
-					String.format("%04X", inst.getAddress()),
+					String.format("%04X", addr),
 					inst.getObjectCode(),
 					mnemonic
 			);
 
-			// rsub 종료 감지 용
-			if(info.getMnemonic().equals("RSUB") && rMgr.getRegister(8) == 0) {
+			if (mnemonic.equals("RSUB") && rMgr.getRegister(8) == 0) {
 				gui.appendLog("RSUB 실행 후 종료 감지 : PC = 0 -> 프로그램 종료");
 			}
 		} else {
-			logMsg = String.format("⚠ 알 수 없는 명령어: %s at 0x%04X", inst.getObjectCode(), inst.getAddress());
-
+			logMsg = String.format("⚠ 알 수 없는 명령어: %s at 0x%04X", inst.getObjectCode(), addr);
 			gui.appendLog(logMsg);
 			gui.showCurrentInstruction(
-					String.format("%04X", inst.getAddress()),
+					String.format("%04X", addr),
 					inst.getObjectCode(),
 					"UNKNOWN"
 			);
@@ -93,45 +145,39 @@ public class SicSimulator {
 		currentInstructionIndex++;
 	}
 
-	/**
-	 * 남은 모든 instruction이 수행된 모습을 보인다.
-	 */
+	/** 남은 모든 명령어 연속 실행 */
 	public void allStep(VisualSimulatorGUI gui) {
-		while(currentInstructionIndex < instructionQueue.size()) {
+		while (currentInstructionIndex < instructionQueue.size()) {
 			oneStep(gui);
 		}
 	}
 
-	/**
-	 * 각 단계를 수행할 때 마다 관련된 기록을 남기도록 한다.
-	 */
+	/** 내부 로그 추가 */
 	public void addLog(String log) {
-		if(guiRef != null) {
+		if (guiRef != null) {
 			guiRef.appendLog(log);
 		}
 	}
 
-/**
- * object  code (hex String_ -> char[]로 변환
- */
 	private char[] hexStringToCharArray(String hex) {
 		int len = hex.length();
 		char[] result = new char[len / 2];
-		for(int i = 0; i < len; i += 2) {
+		for (int i = 0; i < len; i += 2) {
 			result[i / 2] = (char) Integer.parseInt(hex.substring(i, i + 2), 16);
 		}
 		return result;
 	}
 
-	/**
-	 * 외부에서 instruction list를 받아올 수 있게
-	 */
 	public void setInstructionQueue(List<ExecutableInstruction> list) {
 		instructionQueue.clear();
 		instructionQueue.addAll(list);
 	}
 
-	public int getRegister(int regNum){
+	public List<ExecutableInstruction> getInstructionQueue() {
+		return instructionQueue;
+	}
+
+	public int getRegister(int regNum) {
 		return rMgr.getRegister(regNum);
 	}
 
@@ -139,5 +185,7 @@ public class SicSimulator {
 		this.guiRef = guiRef;
 	}
 
+	public InstTable getInstTable() {
+		return instTable;
+	}
 }
-

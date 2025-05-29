@@ -11,11 +11,9 @@ import java.io.File;
  */
 public class VisualSimulator {
 	ResourceManager resourceManager = new ResourceManager();
-	String instFilePath = "inst.data";
+	String instFilePath = "inst_table.txt";
 	SicSimulator sicSimulator = new SicSimulator(resourceManager, instFilePath);
 	SicLoader sicLoader = new SicLoader(resourceManager, sicSimulator);
-
-	VisualSimulatorGUI gui = new VisualSimulatorGUI();
 
 	/**
 	 * 프로그램 로드 명령을 전달한다.
@@ -64,8 +62,4 @@ public class VisualSimulator {
 				resourceManager.getTargetAddress()
 		);
 	};
-
-	public static void main(String[] args) {
-
-	}
 }

@@ -1,5 +1,7 @@
 package SP25_simulator;
 
+import SP25_simulator.section.SectionInfo;
+
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
@@ -9,16 +11,14 @@ import static java.rmi.server.LogStream.log;
 public class VisualSimulatorGUI extends JFrame{
 
     private final ResourceManager resourceManager = new ResourceManager();
-    private final SicSimulator sicSimulator = new SicSimulator(resourceManager, "inst.data");
+    private final SicSimulator sicSimulator = new SicSimulator(resourceManager, "inst_table.txt");
     private final SicLoader sicLoader = new SicLoader(resourceManager, sicSimulator);
-
-
-    // VisualSimulator와 연결
-    private VisualSimulator visualSimulator = new VisualSimulator();
 
     // 상단
     private JTextField fileNameField;
     private JButton openBtn;
+    private JComboBox<String> sectionCombo;
+    private JLabel currentSectionLabel;
 
     // Header Record
     private JTextField progNameField, startAddrField, progLengthField;
@@ -50,11 +50,17 @@ public class VisualSimulatorGUI extends JFrame{
 
         // 상단 - 파일 로드
         JPanel filePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        filePanel.add(new JLabel("FileName : "));
-        fileNameField = new JTextField(10);
-        openBtn = new JButton("open");
+        filePanel.add(new JLabel("File: "));
+        fileNameField = new JTextField(20);
+        openBtn = new JButton("Open");
         filePanel.add(fileNameField);
         filePanel.add(openBtn);
+        filePanel.add(new JLabel("Section: "));
+        sectionCombo = new JComboBox<>();
+        filePanel.add(sectionCombo);
+        filePanel.add(new JLabel("Current: "));
+        currentSectionLabel = new JLabel("");
+        filePanel.add(currentSectionLabel);
         add(filePanel, BorderLayout.NORTH);
 
         // 중단 - 주요 내용
@@ -158,20 +164,25 @@ public class VisualSimulatorGUI extends JFrame{
 
         // 파일 열기 버튼
         openBtn.addActionListener(e -> {
-            JFileChooser fileChooser = new JFileChooser();
-            int result = fileChooser.showOpenDialog(this);
-            if(result == JFileChooser.APPROVE_OPTION) {
-                File file = fileChooser.getSelectedFile();
+            JFileChooser chooser = new JFileChooser();
+            if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+                File file = chooser.getSelectedFile();
                 fileNameField.setText(file.getAbsolutePath());
 
-                sicLoader.load(file);
+                // 로드 순서
+                List<SectionInfo> sections = sicLoader.runPass1(file);
+                sicSimulator.setSections(sections);
+                sicLoader.runPass2(sections, resourceManager, sicSimulator);
+
                 update(resourceManager);
-                log("파일 로드 완료: "+ file.getName());
+                updateSimulatorView(sicSimulator);
+                log("파일 로드 완료: " + file.getName());
 
                 stepBtn.setEnabled(true);
                 allBtn.setEnabled(true);
             }
         });
+
 
         stepBtn.addActionListener(e -> {
             sicSimulator.oneStep(this);
@@ -225,13 +236,14 @@ public class VisualSimulatorGUI extends JFrame{
         });
     }
 
-    public void updateView(SicSimulator sim) {
-        for(int i = 0; i < 10; i++) {
-            int val = sim.getRegister(i);
-            regDecFields[i].setText(String.valueOf(val));
-            regHexFields[i].setText(Integer.toHexString(val).toUpperCase());
+    public void updateSimulatorView(SicSimulator simulator) {
+        sectionCombo.removeAllItems();
+        for (SectionInfo sec : simulator.getSections()) {
+            sectionCombo.addItem(sec.getSectionName());
         }
+        sectionCombo.setSelectedItem(simulator.getCurrentSection());
     }
+
 
     public void update(ResourceManager resourceManager) {
         // 헤더 정보 최신화
@@ -261,6 +273,10 @@ public class VisualSimulatorGUI extends JFrame{
     public void showCurrentInstruction(String address, String objectCode, String mnemonic){
         String line = String.format("0x%04X :  %s (%s)", Integer.parseInt(address, 16), objectCode, mnemonic);
         instructionArea.append(line + "\n");
+    }
+
+    public void showCurrentSection(String sectionName) {
+        currentSectionLabel.setText(sectionName);
     }
 
     private void reset() {

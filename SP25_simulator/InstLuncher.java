@@ -14,30 +14,52 @@ public class InstLuncher {
      */
     public void execute(Instruction inst, char[] bytes) {
         String mnemonic = inst.getMnemonic();
+        int format = inst.getFormat();
 
-        switch (mnemonic) {
-            case "COMPR" -> doCompr(bytes);
-            case "ADDR"  -> doAddr(bytes);
-            case "SUBR"  -> doSubr(bytes);
-            case "LDA"   -> doLda(bytes);
-            case "STA"   -> doSta(bytes);
-            case "CLEAR" -> doClear(bytes);
-            case "JSUB"  -> doJsub(bytes);
-            case "RSUB"  -> doRsub();
-            case "J"    -> doJump(bytes);
-            case "JEQ"  -> doJeq(bytes);
-            case "JGT"  -> doJgt(bytes);
-            case "JLT"  -> doJlt(bytes);
-            case "LDX" -> doLdx(bytes);
-            case "STX" -> doStx(bytes);
-            case "LDB" -> doLdb(bytes);
-            case "STB" -> doStb(bytes);
-            case "TD" -> doTd(bytes);
-            case "RD" -> doRd(bytes);
-            case "WD" -> doWd(bytes);
-            default      -> System.out.println("⚠ 지원하지 않는 명령어: " + mnemonic);
+        switch (format) {
+            case 1 -> {
+                // Format 1은 1바이트 명령어 -> 필요없음
+                System.out.printf("✔ Format 1 명령어 [%s] 실행 (아직 구현되지 않음)\n", mnemonic);
+            }
+
+            case 2 -> {
+                // Format 2는 2바이트, 대부분 레지스터 연산
+                switch (mnemonic) {
+                    case "COMPR" -> doCompr(bytes);
+                    case "ADDR"  -> doAddr(bytes);
+                    case "SUBR"  -> doSubr(bytes);
+                    case "CLEAR" -> doClear(bytes);
+                    default      -> System.out.println("⚠ Format 2 명령어 중 지원하지 않는 명령어: " + mnemonic);
+                }
+            }
+
+            case 3, 4 -> {
+                // Format 3/4는 기존처럼 object code를 메모리에서 fetch해서 실행
+                switch (mnemonic) {
+                    case "LDA"   -> doLda(bytes);
+                    case "STA"   -> doSta(bytes);
+                    case "LDX"   -> doLdx(bytes);
+                    case "STX"   -> doStx(bytes);
+                    case "LDB"   -> doLdb(bytes);
+                    case "STB"   -> doStb(bytes);
+                    case "JSUB"  -> doJsub(bytes);
+                    case "RSUB"  -> doRsub();
+                    case "STL" -> doStl(bytes);
+                    case "J"     -> doJump(bytes);
+                    case "JEQ"   -> doJeq(bytes);
+                    case "JGT"   -> doJgt(bytes);
+                    case "JLT"   -> doJlt(bytes);
+                    case "TD"    -> doTd(bytes);
+                    case "RD"    -> doRd(bytes);
+                    case "WD"    -> doWd(bytes);
+                    default      -> System.out.println("⚠ Format 3/4 명령어 중 지원하지 않는 명령어: " + mnemonic);
+                }
+            }
+
+            default -> System.out.println("⚠ 알 수 없는 명령어 포맷: " + format + " (" + mnemonic + ")");
         }
     }
+
 
     /**
      * Format 2: CLEAR r1
@@ -130,6 +152,15 @@ public class InstLuncher {
         };
         rMgr.setMemory(addr, data, 3);
         System.out.printf("✔ STB → M[0x%04X] ← B = %06X\n", addr, b);
+    }
+
+    private void doStl(char[] bytes) {
+        boolean[] flags = decodeNixbpe(bytes);
+        int disp = fetchDisp(bytes, flags[5]);
+        int addr = resolveTargetAddr(disp, flags);
+        int l = rMgr.getRegister(2);
+        rMgr.storeWord(addr, l);
+        System.out.printf("✔ STL → [0x%04X] ← L = %06X\n", addr, l);
     }
 
     private void doJsub(char[] bytes) {
@@ -303,11 +334,19 @@ public class InstLuncher {
     }
 
     private int fetchDisp(char[] bytes, boolean format4) {
-        if(format4) {
+        if (bytes == null || bytes.length < 3) {
+            throw new IllegalArgumentException("Instruction bytes are too short.");
+        }
+
+        if (format4) {
+            if (bytes.length < 4) {
+                throw new IllegalArgumentException("Format 4 instruction requires at least 4 bytes.");
+            }
             return ((bytes[1] & 0x0F) << 16) | ((bytes[2] & 0xFF) << 8) | (bytes[3] & 0xFF);
         } else {
             int disp = ((bytes[1] & 0x0F) << 8) | (bytes[2] & 0xFF);
-            if((disp & 0x800) != 0) {
+            // Sign-extend 12-bit displacement to 32-bit integer (for negative PC-relative)
+            if ((disp & 0x800) != 0) {
                 disp |= 0xFFFFF000;
             }
             return disp;

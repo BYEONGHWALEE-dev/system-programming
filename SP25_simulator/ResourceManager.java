@@ -1,9 +1,10 @@
 package SP25_simulator;
 
+import SP25_simulator.section.SymbolTable;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
 
@@ -32,7 +33,6 @@ public class ResourceManager {
 	 */
 	HashMap<String, Object> deviceManager = new HashMap<String, Object>();
 	// 디바이스
-	HashMap<String, Object> getDeviceManager = new HashMap<>();
 
 	char[] memory = new char[65536]; // String으로 수정해서 사용하여도 무방함.
 	int[] register = new int[10];
@@ -42,9 +42,9 @@ public class ResourceManager {
 	// 이외에도 필요한 변수 선언해서 사용할 것.
 
 	// Metadata
-	private String programName = "TEST";
+	private String programName;
+	private String programLength;
 	private String startAddress = "1000";
-	private String programLength = "002A";
 	private String executionStartAddress = "1000";
 	private String memoryStartAddress = "1000";
 	private String targetAddress = "1033";
@@ -219,21 +219,19 @@ public class ResourceManager {
 		return result;
 	}
 
-	// ===================== 프로그램 정보 Getter ======================
-	public String getProgramName() {
-		return programName;
+	public void storeWord(int addr, int value){
+		memory[addr]     = (char)((value >> 16) & 0xFF);
+		memory[addr + 1] = (char)((value >> 8) & 0xFF);
+		memory[addr + 2] = (char)(value & 0xFF);
 	}
 
+	// ===================== 프로그램 정보 Getter ======================
 	public String getStartAddress() {
 		return startAddress;
 	}
 
 	public int getStartAddressInt() {
 		return Integer.parseInt(startAddress);
-	}
-
-	public String getProgramLength() {
-		return programLength;
 	}
 
 	public String getExecutionStartAddress() {
@@ -249,15 +247,23 @@ public class ResourceManager {
 	}
 
 	// Setter for loader use
-	public void setProgramInfo(String name, String start, String length) {
+	public void setProgramInfo(String name, int start, int length) {
 		this.programName = name;
-		this.startAddress = start;
-		this.programLength = length;
+		this.startAddress = String.format("%06X", start);
+		this.programLength = String.format("%06X", length);
 	}
 
 	public void setEndInfo(String execStart, String memStart, String target){
 		this.executionStartAddress = execStart;
 		this.memoryStartAddress = memStart;
 		this.targetAddress = target;
+	}
+
+	public String getProgramName() {
+		return programName;
+	}
+
+	public String getProgramLength() {
+		return programLength;
 	}
 }
