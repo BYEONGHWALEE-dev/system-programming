@@ -36,7 +36,7 @@ public class SicLoader {
 	}
 
 
-	private List<SectionInfo> runPass1(File objectFile) throws IOException {
+	public List<SectionInfo> runPass1(File objectFile) throws IOException {
 		List<SectionInfo> sectionInfoList = new ArrayList<>();
 		SectionInfo currentSectionInfo = null;
 		String lastExecAddr = null;
@@ -61,6 +61,9 @@ public class SicLoader {
 
 						currentSectionInfo = new SectionInfo(name, /*abs*/ base + relOff, length);
 						sectionInfoList.add(currentSectionInfo);
+
+						// 헤더 정보를 definition 저장해야함
+						currentSectionInfo.getSymbolTable().addDefinition(name, 0x00);
 
 						base += length;
 					}
@@ -127,7 +130,7 @@ public class SicLoader {
 		return null;
 	}
 
-	private void runPass2(
+	public void runPass2(
 			List<SectionInfo> sections,
 			ResourceManager rMgr,
 			SicSimulator sicSimulator
@@ -205,37 +208,49 @@ public class SicLoader {
 			int sectionBase,
 			List<ExecutableInstruction> queue
 	) {
-		String codes = tr.getObjectCodes();
 		int relOff = tr.getStartAddr();
-		int i = 0;
-		while (i + 2 <= codes.length()) {
-			int currAddr = sectionBase + relOff + (i / 2);
-			String opHex = codes.substring(i, i + 2);
-			int raw = Integer.parseInt(opHex, 16);
-			int opcode = raw & 0xFC;
+		int length = tr.getLength(); // T 레코드의 길이 (바이트 수)
+		int currAddr = sectionBase + relOff;
+		int endAddr = currAddr + length;
+
+		while (currAddr < endAddr) {
+			int byte0 = rMgr.memory[currAddr] & 0xFF;
+			int opcode = byte0 & 0xFC;
+
 			Instruction inst = sicSimulator.getInstTable().getByOpcode(opcode);
 			if (inst == null) {
-				i += 2;
+				currAddr += 1; // 알 수 없는 명령어는 1바이트 스킵
 				continue;
 			}
+
 			int format = inst.getFormat();
 			boolean isFmt4 = false;
+
 			if (format == 3 || format == 4) {
-				if (i + 4 <= codes.length()) {
-					int byte2 = Integer.parseInt(codes.substring(i + 2, i + 4), 16);
-					isFmt4 = (byte2 & 0x10) != 0;
-				}
+				int byte1 = rMgr.memory[currAddr + 1] & 0xFF;
+
+				boolean e = (byte1 & 0x10) != 0;
+				isFmt4 = e;
 			}
-			int instLen = switch (format) {
-				case 1 -> 2;
-				case 2 -> 4;
-				case 3, 4 -> isFmt4 ? 8 : 6;
-				default -> 6;
+
+			int instLength = switch (format) {
+				case 1 -> 1;
+				case 2 -> 2;
+				case 3, 4 -> isFmt4 ? 4 : 3;
+				default -> 3; // 기본적으로 format 3으로 처리
 			};
-			if (i + instLen > codes.length()) break;
-			String instCode = codes.substring(i, i + instLen);
-			queue.add(new ExecutableInstruction(currAddr, instCode));
-			i += instLen;
+
+			if (currAddr + instLength > endAddr) break;
+
+			// instCode 구성: 메모리에서 instruction 길이만큼 읽어서 hex string으로 조합
+			StringBuilder instCodeBuilder = new StringBuilder();
+			for (int i = 0; i < instLength; i++) {
+				int b = rMgr.memory[currAddr + i] & 0xFF;
+				instCodeBuilder.append(String.format("%02X", b));
+			}
+
+			queue.add(new ExecutableInstruction(currAddr, instCodeBuilder.toString()));
+			currAddr += instLength;
 		}
 	}
 }

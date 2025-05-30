@@ -6,13 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="f6e4fa1f-6439-445a-814a-b7ab0843bf52" name="변경" comment="">
       <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/ExecutableInstruction.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/ExecutableInstruction.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/InstLuncher.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/InstLuncher.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/InstTable.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/InstTable.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/ResourceManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/ResourceManager.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/SicLoader.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/SicLoader.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/SicSimulator.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/SicSimulator.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/VisualSimulator.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/VisualSimulator.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/VisualSimulatorGUI.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/VisualSimulatorGUI.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -55,22 +49,28 @@
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;git-widget-placeholder&quot;: &quot;main&quot;,
     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/byeonghwa/Desktop/LEE/University/25-1/시스템프로그래밍/Assignment/Assembler/SP25_simulator&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;,
-    &quot;애플리케이션.VisualSimulatorGUI.executor&quot;: &quot;Run&quot;
+    &quot;애플리케이션.VisualSimulatorGUI.executor&quot;: &quot;Debug&quot;
   }
 }</component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator" />
+    </key>
+  </component>
   <component name="RunManager">
     <configuration name="VisualSimulatorGUI" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="SP25_simulator.VisualSimulatorGUI" />
       <module name="SP25_simulator" />
       <extension name="coverage">
         <pattern>
-          <option name="PATTERN" value="SP25_simulator.*" />
+          <option name="PATTERN" value="SP25_simulator.section.*" />
           <option name="ENABLED" value="true" />
         </pattern>
       </extension>
@@ -106,10 +106,21 @@
       <workItem from="1748012481100" duration="3600000" />
       <workItem from="1748017843140" duration="2227000" />
       <workItem from="1748395705873" duration="8267000" />
+      <workItem from="1748419502459" duration="33475000" />
+      <workItem from="1748509448633" duration="1834000" />
+      <workItem from="1748610347312" duration="370000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="XDebuggerManager">
+    <watches-manager>
+      <configuration name="Application">
+        <watch expression="bytes[2]" />
+        <watch expression="br" />
+      </configuration>
+    </watches-manager>
   </component>
 </project>

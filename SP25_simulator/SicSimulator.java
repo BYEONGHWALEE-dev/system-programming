@@ -105,7 +105,7 @@ public class SicSimulator {
 		String logMsg;
 
 		if (info != null) {
-			boolean format4 = (bytes[1] & 0x01) == 1;
+			boolean format4 = ((bytes[1] & 0x10) == 16 && (info.getFormat() == 4));
 			if (format4 && bytes.length < 4) {
 				String warn = String.format(
 						"⚠ Format 4 명령어인데 object code 길이가 부족합니다: %s at 0x%04X",
