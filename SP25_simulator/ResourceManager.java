@@ -2,9 +2,7 @@ package SP25_simulator;
 
 import SP25_simulator.section.SymbolTable;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.PrintWriter;
+import java.io.*;
 import java.util.HashMap;
 import java.util.Scanner;
 
@@ -55,6 +53,23 @@ public class ResourceManager {
 	public void initializeResource() {
 		for(int i = 0; i < register.length; i++) register[i] = 0;
 		for(int i = 0; i < memory.length; i++) memory[i] = 0;
+
+		deviceManager.clear();
+
+		// 디바이스 추가
+		try{
+			// 입력 파일 디바이스 등록
+			BufferedReader reader = new BufferedReader(new FileReader("F1.txt"));
+			deviceManager.put("F1", reader);
+
+			// 출력 파일 디바이스 등록
+			PrintWriter outWriter = new PrintWriter(new FileWriter("05.txt"));
+			deviceManager.put("05", outWriter);
+
+			System.out.println("디바이스 등록완료");
+		} catch (IOException e) {
+			System.err.println("디바이스 초기화 중 오류:" + e.getMessage());
+		}
 	}
 
 	/**
@@ -89,32 +104,29 @@ public class ResourceManager {
 	 * @param num     가져오는 글자의 개수
 	 * @return 가져온 데이터
 	 */
-	public char[] readDevice(String devName, int num) {
-		try{
-			Scanner scanner;
+	public char[] readDevice(String devName, int num, int offset) {
+		try (BufferedReader reader = new BufferedReader(new FileReader(devName + ".txt"))) {
 
-			// 이미 열린 경우
-			if(deviceManager.containsKey(devName)) {
-				scanner = (Scanner) deviceManager.get(devName);
-			} else {
-				// 없으면 열어야 함
-				File file = new File(devName + "txt");
-				scanner = new Scanner(file);
-				deviceManager.put(devName, scanner);
-			}
-
+			int totalToRead = num + offset;
 			StringBuilder sb = new StringBuilder();
-			while(scanner.hasNext() && sb.length() < num) {
-				sb.append(scanner.next().charAt(0)); // 공백 단위로
+
+			int ch;
+			while ((ch = reader.read()) != -1 && sb.length() < totalToRead) {
+				sb.append((char) ch);
 			}
 
-			return sb.toString().toCharArray();
-		} catch (Exception e) {
-			System.err.println(e.getMessage());
+			if (sb.length() > offset) {
+				return new char[]{sb.charAt(offset)};
+			} else {
+				return new char[0];
+			}
+
+		} catch (IOException e) {
+			System.err.println("⚠ readDevice 오류: " + e.getMessage());
 			return new char[0];
 		}
-
 	}
+
 
 	/**
 	 * 디바이스로 원하는 개수 만큼의 글자를 출력한다. WD명령어를 사용했을 때 호출되는 함수.
@@ -231,7 +243,7 @@ public class ResourceManager {
 	}
 
 	public int getStartAddressInt() {
-		return Integer.parseInt(startAddress);
+		return Integer.parseInt(startAddress, 16);
 	}
 
 	public String getExecutionStartAddress() {
@@ -265,5 +277,29 @@ public class ResourceManager {
 
 	public String getProgramLength() {
 		return programLength;
+	}
+
+	public void showMemory() {
+		int start = -1;
+		int end = -1;
+
+		// 시작 주소와 끝 주소 계산
+		for (int i = 0; i < memory.length; i++) {
+			if (memory[i] != 0) {
+				if (start == -1) start = i;
+				end = i;
+			}
+		}
+
+		// 메모리에 아무 값도 없을 경우
+		if (start == -1) {
+			System.out.println("📭 메모리에 로드된 값이 없습니다.");
+			return;
+		}
+
+		// 시작 ~ 끝 범위 출력
+		for (int i = start; i <= end; i++) {
+			System.out.printf("0x%04X : 0x%02X\n", i, (int) memory[i]);
+		}
 	}
 }

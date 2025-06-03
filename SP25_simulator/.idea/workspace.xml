@@ -5,10 +5,21 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="f6e4fa1f-6439-445a-814a-b7ab0843bf52" name="변경" comment="">
+      <change afterPath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/05.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/F1.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/D02_out.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/InstLuncher.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/InstLuncher.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/ResourceManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/ResourceManager.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/SicLoader.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/SicLoader.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/SicSimulator.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/SicSimulator.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/VisualSimulatorGUI.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/VisualSimulatorGUI.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/out/production/SP25_simulator/SP25_simulator/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/out/production/SP25_simulator/SP25_simulator/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/out/production/SP25_simulator/SP25_simulator/D02_out.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/out/production/SP25_simulator/SP25_simulator/InstLuncher.class" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/out/production/SP25_simulator/SP25_simulator/InstLuncher.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/out/production/SP25_simulator/SP25_simulator/ResourceManager.class" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/out/production/SP25_simulator/SP25_simulator/ResourceManager.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/out/production/SP25_simulator/SP25_simulator/SicLoader.class" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/out/production/SP25_simulator/SP25_simulator/SicLoader.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/out/production/SP25_simulator/SP25_simulator/SicSimulator.class" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/out/production/SP25_simulator/SP25_simulator/SicSimulator.class" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -109,7 +120,11 @@
       <workItem from="1748395705873" duration="8267000" />
       <workItem from="1748419502459" duration="33475000" />
       <workItem from="1748509448633" duration="1834000" />
-      <workItem from="1748610347312" duration="6687000" />
+      <workItem from="1748610347312" duration="6921000" />
+      <workItem from="1748619668727" duration="12000" />
+      <workItem from="1748619712965" duration="817000" />
+      <workItem from="1748878321040" duration="15032000" />
+      <workItem from="1748956441609" duration="13924000" />
     </task>
     <servers />
   </component>
@@ -117,15 +132,6 @@
     <option name="version" value="3" />
   </component>
   <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/SicLoader.java</url>
-          <line>251</line>
-          <option name="timeStamp" value="13" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
     <watches-manager>
       <configuration name="Application">
         <watch expression="bytes[2]" />

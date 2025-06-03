@@ -23,13 +23,12 @@ public class SicLoader {
 	public void load(File objectFile) {
 		// Resource initializing
 		rMgr.initializeResource();
-
 		try {
 			List<SectionInfo> sections = runPass1(objectFile);
+			sicSimulator.setSections(sections);
 			runPass2(sections, rMgr, sicSimulator);
 			// 완료 디버깅
-			System.out.printf("✔ 로드 완료: 명령어 %d개%n",
-					sicSimulator.getInstructionQueue().size());
+			// rMgr.showMemory();
 		} catch (IOException e) {
 			throw new RuntimeException("Object 파일 로드 중 오류 발생", e);
 		}
@@ -201,6 +200,8 @@ public class SicLoader {
 		sicSimulator.setInstructionQueue(queue);
 		int execStart = Integer.parseInt(rMgr.getExecutionStartAddress(), 16);
 		rMgr.setRegister(8, execStart);
+
+
 	}
 
 	private void parseInstructions(
@@ -252,5 +253,9 @@ public class SicLoader {
 			queue.add(new ExecutableInstruction(currAddr, instCodeBuilder.toString()));
 			currAddr += instLength;
 		}
+	}
+
+	public ResourceManager getResourceManager() {
+		return rMgr;
 	}
 }

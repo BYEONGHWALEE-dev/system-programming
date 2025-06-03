@@ -21,10 +21,13 @@ public class SicSimulator {
 
 	// 실행할 명령어 큐
 	private List<ExecutableInstruction> instructionQueue = new ArrayList<>();
-	private int currentInstructionIndex = 0;
+
+	// 실행해야 할 주소
+	private int currentExecuteAddress = 0;
 
 	public SicSimulator(ResourceManager resourceManager, String instFile) {
 		this.rMgr = resourceManager;
+		this.currentExecuteAddress = rMgr.getStartAddressInt();
 		this.instLuncher = new InstLuncher(resourceManager);
 		this.instTable = new InstTable(instFile);
 	}
@@ -67,23 +70,44 @@ public class SicSimulator {
 
 	/** 메모리·레지스터 초기화 및 명령어 큐 초기화 */
 	public void load(File program) {
-		rMgr.initializeResource();
-		currentInstructionIndex = 0;
-		instructionQueue.clear();
+
 	}
 
 	/** 한 단계 실행 및 GUI 업데이트 */
 	public void oneStep(VisualSimulatorGUI gui) {
-		if (currentInstructionIndex >= instructionQueue.size()) return;
+		int execAddr = currentExecuteAddress;
 
-		ExecutableInstruction inst = instructionQueue.get(currentInstructionIndex);
-		int addr = inst.getAddress();
+//		// 메모리에서 object code fetch
+		char b1 = rMgr.memory[execAddr];
+		char b2 = rMgr.memory[execAddr + 1];
 
-		// 실행 전 현재 섹션 업데이트
-		for (SectionInfo sec : sections) {
-			int start = sec.getStartAddress();
-			int end = start + sec.getLength();
-			if (addr >= start && addr < end) {
+		int rawOpcode = b1 & 0xFC;
+		Instruction info = instTable.getByOpcode(rawOpcode);
+
+		if(info == null) {
+			String warn = String.format("⚠ 알 수 없는 명령어 at 0x%04X: %02X%02X", execAddr, (int)b1, (int)b2);
+			gui.appendLog(warn);
+			addLog(warn);
+			return;
+		}
+
+		boolean format4 = ((b2 & 0x10) == 0x10 && info.getFormat() == 3);
+		int instLen = switch (info.getFormat()) {
+			case 1 -> 1;
+			case 2 -> 2;
+			case 3 -> format4 ? 4 : 3;
+			default -> 0;
+		};
+
+		char[] bytes = new char[instLen];
+		for(int i = 0; i < instLen; i++) {
+			bytes[i] = rMgr.memory[execAddr + i];
+		}
+
+		// 현재 섹션 업데이트
+		for(SectionInfo sec : sections) {
+			int s = sec.getStartAddress();
+			if(execAddr >= s && execAddr < s + sec.getLength()) {
 				if (!sec.getSectionName().equals(currentSectionName)) {
 					setCurrentSection(sec.getSectionName());
 				}
@@ -91,58 +115,16 @@ public class SicSimulator {
 			}
 		}
 
-		char[] bytes = hexStringToCharArray(inst.getObjectCode());
-		if (bytes.length < 2) {
-			String warn = String.format("⚠ 명령어 길이 부족: %s at 0x%04X", inst.getObjectCode(), addr);
-			gui.appendLog(warn);
-			addLog(warn);
-			currentInstructionIndex++;
-			return;
-		}
+		// 명령 실행 -> InstLuncher에서 다음 주소 반환
+		int nextExecAddr = instLuncher.execute(info, bytes, execAddr);
+		currentExecuteAddress = nextExecAddr;
 
-		int rawOpcode = bytes[0] & 0xFC;
-		Instruction info = instTable.getByOpcode(rawOpcode);
-		String logMsg;
-
-		if (info != null) {
-			boolean format4 = ((bytes[1] & 0x10) == 16 && (info.getFormat() == 4));
-			if (format4 && bytes.length < 4) {
-				String warn = String.format(
-						"⚠ Format 4 명령어인데 object code 길이가 부족합니다: %s at 0x%04X",
-						inst.getObjectCode(), addr);
-				gui.appendLog(warn);
-				addLog(warn);
-				currentInstructionIndex++;
-				return;
-			}
-
-			instLuncher.execute(info, bytes);
-			String mnemonic = info.getMnemonic();
-			logMsg = String.format("실행 : %s (%s) at 0x%04X", mnemonic, inst.getObjectCode(), addr);
-
-			gui.appendLog(logMsg);
-			gui.showCurrentInstruction(
-					String.format("%04X", addr),
-					inst.getObjectCode(),
-					mnemonic
-			);
-
-			if (mnemonic.equals("RSUB") && rMgr.getRegister(8) == 0) {
-				gui.appendLog("RSUB 실행 후 종료 감지 : PC = 0 -> 프로그램 종료");
-			}
-		} else {
-			logMsg = String.format("⚠ 알 수 없는 명령어: %s at 0x%04X", inst.getObjectCode(), addr);
-			gui.appendLog(logMsg);
-			gui.showCurrentInstruction(
-					String.format("%04X", addr),
-					inst.getObjectCode(),
-					"UNKNOWN"
-			);
-		}
-
-		addLog(logMsg);
+		String logMsg = String.format("실행 : %s (%s) at 0x%04X", info.getMnemonic(), charArrayToHex(bytes), execAddr);
+		gui.showCurrentInstruction(String.format("%04X", execAddr), charArrayToHex(bytes), info.getMnemonic());
 		gui.update(rMgr);
-		currentInstructionIndex++;
+		addLog(logMsg);
+
+		// 종료 감지
 	}
 
 	/** 남은 모든 명령어 연속 실행 */
@@ -187,5 +169,18 @@ public class SicSimulator {
 
 	public InstTable getInstTable() {
 		return instTable;
+	}
+
+	public ResourceManager getResourceManager() {
+		return rMgr;
+	}
+
+	public String charArrayToHex(char[] chars) {
+		StringBuilder sb = new StringBuilder();
+		for(char b : chars) {
+			sb.append(String.format("%02X", (int)b));
+		}
+
+		return sb.toString();
 	}
 }

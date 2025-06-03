@@ -172,23 +172,14 @@ public class VisualSimulatorGUI extends JFrame{
                 fileNameField.setText(file.getAbsolutePath());
 
                 // 로드 순서
-                List<SectionInfo> sections = null;
-                try {
-                    sections = sicLoader.runPass1(file);
-                    sicSimulator.setSections(sections);
-                    sicLoader.runPass2(sections, resourceManager, sicSimulator);
+                sicLoader.load(file);
 
-                    update(resourceManager);
-                    updateSimulatorView(sicSimulator);
-                    log("파일 로드 완료: " + file.getName());
+                update(resourceManager);
+                updateSimulatorView(sicSimulator);
+                log("파일 로드 완료: " + file.getName());
 
-                    stepBtn.setEnabled(true);
-                    allBtn.setEnabled(true);
-                } catch (IOException ex) {
-                    log("파일 읽기 중 오류 발생: " + ex.getMessage());
-                    ex.printStackTrace();
-                    JOptionPane.showMessageDialog(this, "파일을 읽는 중 오류가 발생했습니다.", "오류", JOptionPane.ERROR_MESSAGE);
-                }
+                stepBtn.setEnabled(true);
+                allBtn.setEnabled(true);
 
             }
 
