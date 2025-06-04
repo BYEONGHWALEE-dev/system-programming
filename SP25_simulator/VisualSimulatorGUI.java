@@ -4,12 +4,16 @@ import SP25_simulator.section.SectionInfo;
 import SP25_simulator.assembler.*;
 import javax.swing.*;
 import java.awt.*;
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 
-import static java.rmi.server.LogStream.log;
-
+/**
+ * VisualSimulatorGUI는 사용자와의 상호작용을 담당한다. 즉, 버튼 클릭등의 이벤트를 전달하고 그에 따른 결과값을 화면에 업데이트
+ * 하는 역할을 수행한다.
+ *
+ * 실제적인 작업은 SicSimulator에서 수행하도록 구현한다.
+ */
 public class VisualSimulatorGUI extends JFrame{
 
     private final ResourceManager resourceManager = new ResourceManager();
@@ -281,10 +285,52 @@ public class VisualSimulatorGUI extends JFrame{
     }
 
     private void reset() {
+        // 리소스 초기화
         resourceManager.initializeResource();
         update(resourceManager);
+
+        // 시뮬레이터 상태도 함께 초기화
+        sicSimulator.setSections(new ArrayList<>());
+
+        // UI 요소 초기화
         logArea.setText("");
         instructionArea.setText("");
-        log("시스템 초기화 완료");
+        sectionCombo.removeAllItems();
+        currentSectionLabel.setText("");
+        fileNameField.setText("");
+
+        // 실행 버튼 잠금
+        stepBtn.setEnabled(false);
+        allBtn.setEnabled(false);
+
+        log("🔄 시스템 초기화 완료. 새 파일을 다시 열어주세요.");
     }
+
+    public static void printFileContentToConsole(String filePath) {
+        File file = new File(filePath);
+        if (!file.exists()) {
+            System.out.println("❌ 파일이 존재하지 않습니다: " + filePath);
+            return;
+        }
+
+        System.out.println("📄 파일 내용 (" + filePath + "):");
+        try (BufferedReader reader = new BufferedReader(
+                new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8))) {
+
+            String line;
+            int lineNum = 1;
+            while ((line = reader.readLine()) != null) {
+                System.out.printf("%2d: %s%n", lineNum++, line);
+            }
+
+        } catch (IOException e) {
+            System.err.println("⚠ 파일 읽기 중 오류 발생: " + e.getMessage());
+        }
+    }
+
+    public void disableExecutionButton() {
+        stepBtn.setEnabled(false);
+        allBtn.setEnabled(false);
+    }
+
 }

@@ -29,15 +29,12 @@ public class ResourceManager {
 	 * 
 	 * 이것도 복잡하면 알아서 구현해서 사용해도 괜찮습니다.
 	 */
-	HashMap<String, Object> deviceManager = new HashMap<String, Object>();
-	// 디바이스
-
 	char[] memory = new char[65536]; // String으로 수정해서 사용하여도 무방함.
 	int[] register = new int[10];
 	double register_F;
 
-	SymbolTable symtabList;
-	// 이외에도 필요한 변수 선언해서 사용할 것.
+	// 디바이스
+	HashMap<String, Object> deviceManager = new HashMap<String, Object>();
 
 	// Metadata
 	private String programName;
@@ -59,11 +56,11 @@ public class ResourceManager {
 		// 디바이스 추가
 		try{
 			// 입력 파일 디바이스 등록
-			BufferedReader reader = new BufferedReader(new FileReader("F1.txt"));
+			BufferedReader reader = new BufferedReader(new FileReader("device/F1.txt"));
 			deviceManager.put("F1", reader);
 
 			// 출력 파일 디바이스 등록
-			PrintWriter outWriter = new PrintWriter(new FileWriter("05.txt"));
+			PrintWriter outWriter = new PrintWriter(new FileWriter("device/05.txt"));
 			deviceManager.put("05", outWriter);
 
 			System.out.println("디바이스 등록완료");
@@ -104,7 +101,7 @@ public class ResourceManager {
 	 * @return 가져온 데이터
 	 */
 	public char[] readDevice(String devName) {
-		File file = new File(devName + ".txt");
+		File file = new File("device/" + devName + ".txt");
 
 		try {
 			// 현재 파일 전체 읽기

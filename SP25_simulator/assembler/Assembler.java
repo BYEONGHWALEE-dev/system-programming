@@ -40,8 +40,8 @@ public class Assembler {
 		assembler.loadInputFile(filePath);
 
 		assembler.pass1();
-		assembler.printSymbolTable("assembler/output_symtab.txt");
-		assembler.printLiteralTable("assembler/output_littab.txt");
+		assembler.printSymbolTable("assembler/output/output_symtab.txt");
+		assembler.printLiteralTable("assembler/output/output_littab.txt");
 
 		assembler.pass2();
 		assembler.printObjectCode("output_objectcode.txt");
@@ -112,14 +112,14 @@ public class Assembler {
 		TokenTable tokenTable = new TokenTable(symbolTable, instTable, directiveList);
 		RefTable refTable = new RefTable();
 		int sectionNum = 0;
-		// lineList¿¡¼­ ÇÑ ÁÙ¾¿ ½ºÄµÇÏ¿© ÅäÅ« ´ÜÀ§·Î ºÐ¸®ÇÑ µÚ ÅäÅ« Å×ÀÌºí »ý¼º
+		// lineListï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Ù¾ï¿½ ï¿½ï¿½Äµï¿½Ï¿ï¿½ ï¿½ï¿½Å« ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ð¸ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½Å« ï¿½ï¿½ï¿½Ìºï¿½ ï¿½ï¿½ï¿½ï¿½
         for (int i= 0; i < lineList.size(); i++) {
-			// ÀÐ¾î¿Ã¶§ . ÀÌ¸é pass
+			// ï¿½Ð¾ï¿½Ã¶ï¿½ . ï¿½Ì¸ï¿½ pass
 			String line = lineList.get(i);
-			if(line.startsWith(".")){continue;} // .·Î ½ÃÀÛÇÏ¸é Pass
+			if(line.startsWith(".")){continue;} // .ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï¸ï¿½ Pass
 
-            tokenTable.putToken(line); //tokenÀ¸·Î ³ÖÀ½
-			Token token = tokenTable.getToken(tokenTable.tokenTableIndex++); // ÅäÅ«À» °¡Á®¿Â´Ù. 1: Literal TableÀ» À§ÇÔ 2: Section ºÐ¸®¸¦ À§ÇÔ
+            tokenTable.putToken(line); //tokenï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+			Token token = tokenTable.getToken(tokenTable.tokenTableIndex++); // ï¿½ï¿½Å«ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Â´ï¿½. 1: Literal Tableï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ 2: Section ï¿½Ð¸ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 
 			if(token.operator.equals("CSECT") || token.operator.equals("END")) {
 				tokenList.add(tokenTable);
@@ -127,7 +127,7 @@ public class Assembler {
 				refList.add(refTable);
 
 				tokenTable.tableLength = TokenTable.locationCounter;
-				token.setLocation(0); // ÅäÅ«ÀÇ locationÀ» 0À¸·Î setÇÑ´Ù.
+				token.setLocation(0); // ï¿½ï¿½Å«ï¿½ï¿½ locationï¿½ï¿½ 0ï¿½ï¿½ï¿½ï¿½ setï¿½Ñ´ï¿½.
 
 				symbolTable = new SymbolTable();
 				tokenTable = new TokenTable(symbolTable, instTable, directiveList);
@@ -135,10 +135,10 @@ public class Assembler {
 
 				if(token.operator.equals("CSECT")) {
 					sectionNum++;
-					TokenTable.locationCounter = 0; // locationCounter ¶ÇÇÑ ÃÊ±âÈ­ ½ÃÄÑÁà¾ßÇÑ´Ù.
+					TokenTable.locationCounter = 0; // locationCounter ï¿½ï¿½ï¿½ï¿½ ï¿½Ê±ï¿½È­ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
 				}
 			}
-			else if(token.operator.equals("EXTDEF")){ //EXTDEF¸¦ ¸¸³ª¸é DEF Å×ÀÌºí¿¡ ³Ö´Â´Ù. ¸¸¾à ¾øÀ¸¸é DEFÀÇ »çÀÌÁî°¡ 0ÀÌ µÇ´Â °Í -> nullÀÌ ¾Æ´Ï´Ù. »ý¼ºÇÒ ¶§ Å×ÀÌºíÀ» ´Ù »ý¼ºÇÔ
+			else if(token.operator.equals("EXTDEF")){ //EXTDEFï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ DEF ï¿½ï¿½ï¿½Ìºï¿½ ï¿½Ö´Â´ï¿½. ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ DEFï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½î°¡ 0ï¿½ï¿½ ï¿½Ç´ï¿½ ï¿½ï¿½ -> nullï¿½ï¿½ ï¿½Æ´Ï´ï¿½. ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½Ìºï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 				int countOperand = Utility.countOperand(token.operand);
 				refTable.putInDefTable(token.operand, countOperand);
 			}
@@ -149,10 +149,10 @@ public class Assembler {
 			else if(token.operator.equals("LTORG")) {
 				for(int j = literalTable.checkIndexForPass1; j < literalTable.literalList.size(); j++){
 					String literal = literalTable.getLiteral(j);
-					literalTable.putLocation(TokenTable.locationCounter); // ÁÖ¼Ò ÇÒ´ç
+					literalTable.putLocation(TokenTable.locationCounter); // ï¿½Ö¼ï¿½ ï¿½Ò´ï¿½
 					literalTable.putSection(sectionNum);
 
-					int sizeLiteral = Utility.countLengthLiteral(literal, literal.charAt(1)); // literalÀÇ »çÀÌÁî ¹ÝÈ¯ -> ¹ÝÈ¯µÈ »çÀÌÁî¸¸Å­ TokenTableÀÇ locationCounter Áõ°¡
+					int sizeLiteral = Utility.countLengthLiteral(literal, literal.charAt(1)); // literalï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È¯ -> ï¿½ï¿½È¯ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½î¸¸Å­ TokenTableï¿½ï¿½ locationCounter ï¿½ï¿½ï¿½ï¿½
 					TokenTable.locationCounter += sizeLiteral;
 				}
 			}
@@ -164,7 +164,7 @@ public class Assembler {
 					token.location = firstOperand - secondOperand;
 				}
 			}
-			else if(token.operand[0] != null){ // literal table¿¡ literalÀ» Áý¾î³ÖÀ½
+			else if(token.operand[0] != null){ // literal tableï¿½ï¿½ literalï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 				if(token.operand[0].startsWith("=")){
 					if(!literalTable.checkRedundancy(token.operand[0])){
 						literalTable.putLiteral(token.operand[0]);
@@ -172,15 +172,15 @@ public class Assembler {
 				}
 			}
 
-			token.putInSymbolTable(symbolTable); // tokenÀÇ ¼öÁ¤ÀÌ ³¡³­ µÚ, symbolTable¿¡ ³Ö´Â´Ù.
+			token.putInSymbolTable(symbolTable); // tokenï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½, symbolTableï¿½ï¿½ ï¿½Ö´Â´ï¿½.
         }
 
-		// ¸ðµç scanÀÌ ³¡³­ µÚ¿¡ ÇØ¾ßÇÒ °ÍÀº LTORG¸¦ ¸¸³ªÁö ¸øÇÑ literal¿¡ ÁÖ¼Ò¸¦ ºÎ¿©ÇØÁÖ¾î¾ß ÇÑ´Ù.
+		// ï¿½ï¿½ï¿½ scanï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ú¿ï¿½ ï¿½Ø¾ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ LTORGï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ literalï¿½ï¿½ ï¿½Ö¼Ò¸ï¿½ ï¿½Î¿ï¿½ï¿½ï¿½ï¿½Ö¾ï¿½ï¿½ ï¿½Ñ´ï¿½.
 		int check = literalTable.checkIndexForPass1;
 		for(int i = check; i < literalTable.literalList.size(); i++){
-			literalTable.putLocation(TokenTable.locationCounter); // ÁÖ¼Ò ÇÒ´ç
+			literalTable.putLocation(TokenTable.locationCounter); // ï¿½Ö¼ï¿½ ï¿½Ò´ï¿½
 
-			String literal = literalTable.getLiteral(i); // literalÀÇ »çÀÌÁî¸¸Å­ ÁÖ¼Ò ´õÇÏ±â
+			String literal = literalTable.getLiteral(i); // literalï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½î¸¸Å­ ï¿½Ö¼ï¿½ ï¿½ï¿½ï¿½Ï±ï¿½
 			int sizeLiteral = Utility.countLengthLiteral(literal, literal.charAt(1));
 			TokenTable.locationCounter += sizeLiteral;
 		}
@@ -189,15 +189,15 @@ public class Assembler {
 
 	private void pass2() {
 		// TODO Auto-generated method stub
-		// 2¹øÂ° Scan
+		// 2ï¿½ï¿½Â° Scan
 		ModificationTable modificationTable = new ModificationTable();
-		for (int i = 0; i < tokenList.size(); i++) { // ÀüÃ¼ sectionÀÇ °³¼ö
+		for (int i = 0; i < tokenList.size(); i++) { // ï¿½ï¿½Ã¼ sectionï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 			TokenTable tokenTable = tokenList.get(i);
 			tokenTable.literalTable = literalTable;
 			ArrayList<Token> tokenList = tokenTable.tokenList;
 			SymbolTable symbolTable = tokenTable.getSymbolTable();
 
-			for (int j = 0; j < tokenList.size(); j++) { // section³»ÀÇ ¸í·É¾î °³¼ö
+			for (int j = 0; j < tokenList.size(); j++) { // sectionï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½É¾ï¿½ ï¿½ï¿½ï¿½ï¿½
 				Token token = tokenList.get(j);
 				String operator = token.operator;
 				String[] operand = token.operand;
@@ -206,7 +206,7 @@ public class Assembler {
 				  set nixbpe
 				 */
 				if (instTable.getOpcode(operator) != -1) {
-					// + : format 4, # : immediate, @ : indirect·Î ±¸ºÐÁö¾î¾ß ÇÔ
+					// + : format 4, # : immediate, @ : indirectï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½
 					if (operator.startsWith("+")) {
 						token.setFlag(TokenTable.nFlag, 1);
 						token.setFlag(TokenTable.iFlag, 1);
@@ -214,7 +214,7 @@ public class Assembler {
 						token.setFlag(TokenTable.pFlag, 0);
 						token.setFlag(TokenTable.eFlag, 1);
 
-						// Operand¿¡¼­ X È®ÀÎ ÈÄ flag ¼³Á¤
+						// Operandï¿½ï¿½ï¿½ï¿½ X È®ï¿½ï¿½ ï¿½ï¿½ flag ï¿½ï¿½ï¿½ï¿½
 						if (token.checkXRegister(operand)) {
 							token.setFlag(TokenTable.xFlag, 1);
 						} else {
@@ -232,7 +232,7 @@ public class Assembler {
 						token.setFlag(TokenTable.iFlag, 0);
 						token.setFlag(TokenTable.xFlag, 0);
 
-						// b ¿Í p Áß ÇÏ³ª¸¦ ¼±ÅÃÇØ¾ß ÇÔ.
+						// b ï¿½ï¿½ p ï¿½ï¿½ ï¿½Ï³ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ø¾ï¿½ ï¿½ï¿½.
 						Token nextToken = tokenList.get(j + 1);
 						int targetAddress = symbolTable.searchSymbol(nextToken.operand[0].substring(1));
 						if (nextToken.location - targetAddress > 0) {
@@ -253,17 +253,17 @@ public class Assembler {
 						token.setFlag(TokenTable.nFlag, 1);
 						token.setFlag(TokenTable.iFlag, 1);
 
-						// Operand¿¡¼­ X È®ÀÎ ÈÄ flag ¼³Á¤
+						// Operandï¿½ï¿½ï¿½ï¿½ X È®ï¿½ï¿½ ï¿½ï¿½ flag ï¿½ï¿½ï¿½ï¿½
 						if (token.checkXRegister(operand)) {
 							token.setFlag(TokenTable.xFlag, 1);
 						} else {
 							token.setFlag(TokenTable.xFlag, 0);
 						}
 
-						// b ¿Í p Áß ÇÏ³ª¸¦ ¼±ÅÃÇØ¾ß ÇÔ. // ÇØ¾ß ÇÒ °Í : literal ³ª¿ÔÀ»¶§µµ µÑ Áß¿¡ ÇÏ³ª °í¸£°Ô ÇØ¾ß ÇÔ
+						// b ï¿½ï¿½ p ï¿½ï¿½ ï¿½Ï³ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ø¾ï¿½ ï¿½ï¿½. // ï¿½Ø¾ï¿½ ï¿½ï¿½ ï¿½ï¿½ : literal ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ß¿ï¿½ ï¿½Ï³ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ø¾ï¿½ ï¿½ï¿½
 						Token nextToken = tokenList.get(j + 1);
 						int targetAddress;
-						if (operand[0].startsWith("=")) { // literalÀÏ °æ¿ì
+						if (operand[0].startsWith("=")) { // literalï¿½ï¿½ ï¿½ï¿½ï¿½
 							targetAddress = literalTable.getLocationByLiteral(operand[0]);
 						} else {
 							targetAddress = symbolTable.searchSymbol(nextToken.operand[0]);
@@ -274,13 +274,13 @@ public class Assembler {
 							token.setFlag(TokenTable.pFlag, 1); // PC-relative
 							token.setFlag(TokenTable.bFlag, 0);
 						} else {
-							token.setFlag(TokenTable.bFlag, 1); // Base-relative (°¡Á¤)
+							token.setFlag(TokenTable.bFlag, 1); // Base-relative (ï¿½ï¿½ï¿½ï¿½)
 							token.setFlag(TokenTable.pFlag, 0);
 						}
 					}
 				}
 				/*
-				Object code »ý¼º
+				Object code ï¿½ï¿½ï¿½ï¿½
 				 */
 				if ((instTable.getOpcode(token.operator) != -1) || (directiveList.contains(token.operator))) {
 					tokenTable.makeObjectCode(j);
@@ -290,15 +290,15 @@ public class Assembler {
 				}
 
 				/*
-				Modified code »ý¼º
+				Modified code ï¿½ï¿½ï¿½ï¿½
 				 */
 				if ("CSECT".equals(token.operator)) {
-					modList.add(modificationTable);             // Áö±Ý±îÁö ¸¸µç Å×ÀÌºí ÀúÀå
-					modificationTable = new ModificationTable(); // »õ·Î¿î Section¿ë Å×ÀÌºí ÃÊ±âÈ­
+					modList.add(modificationTable);             // ï¿½ï¿½ï¿½Ý±ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ìºï¿½ ï¿½ï¿½ï¿½ï¿½
+					modificationTable = new ModificationTable(); // ï¿½ï¿½ï¿½Î¿ï¿½ Sectionï¿½ï¿½ ï¿½ï¿½ï¿½Ìºï¿½ ï¿½Ê±ï¿½È­
 				}
 
 				if (token.operator.startsWith("+") && operand.length > 0) {
-					// Format 4 ¸í·É¾îÀÎ °æ¿ì, EXTREF symbolÀÌ¸é ¼öÁ¤ ·¹ÄÚµå Ãß°¡
+					// Format 4 ï¿½ï¿½É¾ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½, EXTREF symbolï¿½Ì¸ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Úµï¿½ ï¿½ß°ï¿½
 					if (refList.get(i).getRefTable().contains(operand[0])) {
 						modificationTable.putModifcationRecord(token.location + 1, 5, '+', operand[0]);
 					}
@@ -317,7 +317,7 @@ public class Assembler {
 				}
 			}
 		}
-		// LTORG¸¦ ¸¸³ªÁö ¸øÇÑ LiteralÀ» ¸¶Áö¸·¿¡ ³Ö¾îÁà¾ßÇÑ´Ù.
+		// LTORGï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ Literalï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ö¾ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
 		TokenTable tokenTable = tokenList.getLast();
 		for(int i = literalTable.checkIndexForPass2; i < literalTable.literalList.size(); i++) {
 			String literal = literalTable.getLiteral(i);
@@ -329,7 +329,7 @@ public class Assembler {
 			}
 		}
 
-		// ¸¶Áö¸· SectionÀÇ modificationTableµµ Ãß°¡
+		// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Sectionï¿½ï¿½ modificationTableï¿½ï¿½ ï¿½ß°ï¿½
 		modList.add(modificationTable);
 	}
 
@@ -342,7 +342,7 @@ public class Assembler {
 				ArrayList<Token> tokens = tokenTable.tokenList;
 				ModificationTable modTable = modList.get(i);
 				ArrayList<String> extRefSymbols = refList.get(i).getRefTable();
-				ArrayList<String> extDefSymbols = refList.get(i).getDefTable();  // »ç¿ëÀÚ Á¤ÀÇ EXTDEF Å×ÀÌºí
+				ArrayList<String> extDefSymbols = refList.get(i).getDefTable();  // ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ EXTDEF ï¿½ï¿½ï¿½Ìºï¿½
 
 				String sectionName = tokens.getFirst().label;
 				if(sectionName.trim().isEmpty()){
@@ -405,7 +405,7 @@ public class Assembler {
 					tLen += objCode.length() / 2;
 				}
 
-				// flush ¸¶Áö¸· T record
+				// flush ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ T record
 				if (tLen > 0) {
 					writer.write(String.format("T%06X%02X%s\n", tStart, tLen, tRecord.toString()));
 				}
@@ -417,9 +417,9 @@ public class Assembler {
 
 				// E record
 				if (i == 0) {
-					writer.write(String.format("E%06X\n\n", startAddr));  // Ã¹ section¸¸ entry ÁöÁ¤
+					writer.write(String.format("E%06X\n\n", startAddr));  // Ã¹ sectionï¿½ï¿½ entry ï¿½ï¿½ï¿½ï¿½
 				} else {
-					writer.write("E\n\n");  // ³ª¸ÓÁö´Â ±×³É E
+					writer.write("E\n\n");  // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½×³ï¿½ E
 				}
 			}
 

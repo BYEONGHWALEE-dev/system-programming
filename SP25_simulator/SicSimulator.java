@@ -20,9 +20,6 @@ public class SicSimulator {
 	private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 	private String currentSectionName = "";
 
-	// 실행할 명령어 큐
-	private List<ExecutableInstruction> instructionQueue = new ArrayList<>();
-
 	// 실행해야 할 주소
 	private int currentExecuteAddress = 0;
 
@@ -126,9 +123,9 @@ public class SicSimulator {
 		// 종료 감지
 		if(charArrayToHex(bytes).equalsIgnoreCase("3E2000")) {
 			String msg = String.format("🛑 종료 명령 감지 (3E2000) at 0x%04X", execAddr);
-			gui.appendLog(msg);
 			addLog(msg);
 			gui.showCurrentInstruction(String.format("%04X", execAddr), charArrayToHex(bytes), info.getMnemonic());
+			gui.disableExecutionButton();
 			return true;
 		}
 		return false;
@@ -138,7 +135,10 @@ public class SicSimulator {
 	public void allStep(VisualSimulatorGUI gui) {
 		while(true) {
 			boolean isEnd = oneStep(gui);
-			if(isEnd) break;
+			if(isEnd) {
+				gui.disableExecutionButton();
+				break;
+			}
 		}
 	}
 
@@ -156,15 +156,6 @@ public class SicSimulator {
 			result[i / 2] = (char) Integer.parseInt(hex.substring(i, i + 2), 16);
 		}
 		return result;
-	}
-
-	public void setInstructionQueue(List<ExecutableInstruction> list) {
-		instructionQueue.clear();
-		instructionQueue.addAll(list);
-	}
-
-	public List<ExecutableInstruction> getInstructionQueue() {
-		return instructionQueue;
 	}
 
 	public int getRegister(int regNum) {
