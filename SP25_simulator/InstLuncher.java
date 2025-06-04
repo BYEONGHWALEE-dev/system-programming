@@ -281,7 +281,7 @@ public class InstLuncher {
         int offset = rMgr.getRegister(1);
         int addr = resolveTargetAddr(disp, flags);
         String devKey = resolveDeviceKey(addr);
-        char[] data = rMgr.readDevice(devKey, 1, offset);
+        char[] data = rMgr.readDevice(devKey);
         System.out.println(data);
         int value = (data != null && data.length > 0) ? data[0] & 0xFF : 0;
 
@@ -343,7 +343,7 @@ public class InstLuncher {
     }
 
     private void doTixr(char[] bytes) {
-        int r1 = bytes[1] & 0x0F;
+        int r1 = (bytes[1] & 0xF0) >> 4;
         rMgr.setRegister(1, rMgr.getRegister(1) + 1); // X++
         int cmp = Integer.compare(rMgr.getRegister(1), rMgr.getRegister(r1));
 

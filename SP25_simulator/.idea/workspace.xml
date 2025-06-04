@@ -5,21 +5,22 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="f6e4fa1f-6439-445a-814a-b7ab0843bf52" name="변경" comment="">
-      <change afterPath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/05.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/F1.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/D02_out.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/05.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/05.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/F1.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/F1.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/InstLuncher.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/InstLuncher.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/ResourceManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/ResourceManager.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/SicLoader.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/SicLoader.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/SicSimulator.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/SicSimulator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/VisualSimulator.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/VisualSimulator.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/VisualSimulatorGUI.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/VisualSimulatorGUI.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/out/production/SP25_simulator/SP25_simulator/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/out/production/SP25_simulator/SP25_simulator/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/out/production/SP25_simulator/SP25_simulator/D02_out.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/out/production/SP25_simulator/SP25_simulator/05.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/out/production/SP25_simulator/SP25_simulator/05.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/out/production/SP25_simulator/SP25_simulator/InstLuncher.class" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/out/production/SP25_simulator/SP25_simulator/InstLuncher.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/out/production/SP25_simulator/SP25_simulator/ResourceManager.class" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/out/production/SP25_simulator/SP25_simulator/ResourceManager.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/out/production/SP25_simulator/SP25_simulator/SicLoader.class" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/out/production/SP25_simulator/SP25_simulator/SicLoader.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/out/production/SP25_simulator/SP25_simulator/SicSimulator.class" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/out/production/SP25_simulator/SP25_simulator/SicSimulator.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/out/production/SP25_simulator/SP25_simulator/VisualSimulatorGUI.class" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/out/production/SP25_simulator/SP25_simulator/VisualSimulatorGUI.class" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -68,7 +69,7 @@
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
     "vue.rearranger.settings.migration": "true",
-    "애플리케이션.VisualSimulatorGUI.executor": "Debug"
+    "애플리케이션.VisualSimulatorGUI.executor": "Run"
   }
 }]]></component>
   <component name="RecentsManager">
@@ -124,7 +125,8 @@
       <workItem from="1748619668727" duration="12000" />
       <workItem from="1748619712965" duration="817000" />
       <workItem from="1748878321040" duration="15032000" />
-      <workItem from="1748956441609" duration="13924000" />
+      <workItem from="1748956441609" duration="14858000" />
+      <workItem from="1749040054672" duration="12769000" />
     </task>
     <servers />
   </component>
@@ -132,6 +134,15 @@
     <option name="version" value="3" />
   </component>
   <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/InstLuncher.java</url>
+          <line>345</line>
+          <option name="timeStamp" value="4" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
     <watches-manager>
       <configuration name="Application">
         <watch expression="bytes[2]" />

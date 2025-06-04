@@ -12,7 +12,7 @@ import java.io.File;
 public class VisualSimulator {
 	ResourceManager resourceManager = new ResourceManager();
 	String instFilePath = "inst_table.txt";
-	SicSimulator sicSimulator = new SicSimulator(resourceManager, instFilePath);
+	SicSimulator sicSimulator = new SicSimulator(resourceManager, instFilePath, new VisualSimulatorGUI());
 	SicLoader sicLoader = new SicLoader(resourceManager, sicSimulator);
 
 	/**

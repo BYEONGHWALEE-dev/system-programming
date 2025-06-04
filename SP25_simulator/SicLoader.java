@@ -170,7 +170,7 @@ public class SicLoader {
 				}
 				// Symbol 절대 주소 계산
 				Integer symAddr = symbolTable.getReferenceAddress(sym);
-				// relocate 계산
+				// Relocate 계산
 				int mask = (1 << (halfN*4)) - 1;
 				int result = (sign == '+')
 						? (value + symAddr) & mask
@@ -200,8 +200,6 @@ public class SicLoader {
 		sicSimulator.setInstructionQueue(queue);
 		int execStart = Integer.parseInt(rMgr.getExecutionStartAddress(), 16);
 		rMgr.setRegister(8, execStart);
-
-
 	}
 
 	private void parseInstructions(

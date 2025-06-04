@@ -13,7 +13,7 @@ import static java.rmi.server.LogStream.log;
 public class VisualSimulatorGUI extends JFrame{
 
     private final ResourceManager resourceManager = new ResourceManager();
-    private final SicSimulator sicSimulator = new SicSimulator(resourceManager, "inst_table.txt");
+    private final SicSimulator sicSimulator = new SicSimulator(resourceManager, "inst_table.txt", this);
     private final SicLoader sicLoader = new SicLoader(resourceManager, sicSimulator);
 
     // 상단
@@ -173,14 +173,11 @@ public class VisualSimulatorGUI extends JFrame{
 
                 // 로드 순서
                 sicLoader.load(file);
-
-                update(resourceManager);
                 updateSimulatorView(sicSimulator);
                 log("파일 로드 완료: " + file.getName());
 
                 stepBtn.setEnabled(true);
                 allBtn.setEnabled(true);
-
             }
 
         });
@@ -245,7 +242,6 @@ public class VisualSimulatorGUI extends JFrame{
         }
         sectionCombo.setSelectedItem(simulator.getCurrentSection());
     }
-
 
     public void update(ResourceManager resourceManager) {
         // 헤더 정보 최신화

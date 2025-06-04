@@ -101,25 +101,36 @@ public class ResourceManager {
 	 * 디바이스로부터 원하는 개수만큼의 글자를 읽어들인다. RD명령어를 사용했을 때 호출되는 함수.
 	 * 
 	 * @param devName 디바이스의 이름
-	 * @param num     가져오는 글자의 개수
 	 * @return 가져온 데이터
 	 */
-	public char[] readDevice(String devName, int num, int offset) {
-		try (BufferedReader reader = new BufferedReader(new FileReader(devName + ".txt"))) {
+	public char[] readDevice(String devName) {
+		File file = new File(devName + ".txt");
 
-			int totalToRead = num + offset;
+		try {
+			// 현재 파일 전체 읽기
 			StringBuilder sb = new StringBuilder();
-
-			int ch;
-			while ((ch = reader.read()) != -1 && sb.length() < totalToRead) {
-				sb.append((char) ch);
+			try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+				int ch;
+				while ((ch = reader.read()) != -1) {
+					sb.append((char) ch);
+				}
 			}
 
-			if (sb.length() > offset) {
-				return new char[]{sb.charAt(offset)};
-			} else {
+			// 내용이 비었으면 아무것도 반환하지 않음
+			if (sb.length() == 0) {
 				return new char[0];
 			}
+
+			// 맨 앞 글자를 반환
+			char firstChar = sb.charAt(0);
+			String newContent = sb.substring(1); // 나머지 내용
+
+			// 파일 덮어쓰기
+			try (BufferedWriter writer = new BufferedWriter(new FileWriter(file, false))) {
+				writer.write(newContent);
+			}
+
+			return new char[]{firstChar};
 
 		} catch (IOException e) {
 			System.err.println("⚠ readDevice 오류: " + e.getMessage());

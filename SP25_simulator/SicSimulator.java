@@ -13,6 +13,7 @@ public class SicSimulator {
 	private InstLuncher instLuncher;
 	private InstTable instTable;
 	private VisualSimulatorGUI guiRef;
+	private int currentInstructionIndex;
 
 	// 새로 추가: 섹션 리스트와 현재 섹션 이름 프로퍼티
 	private List<SectionInfo> sections = new ArrayList<>();
@@ -25,11 +26,12 @@ public class SicSimulator {
 	// 실행해야 할 주소
 	private int currentExecuteAddress = 0;
 
-	public SicSimulator(ResourceManager resourceManager, String instFile) {
+	public SicSimulator(ResourceManager resourceManager, String instFile, VisualSimulatorGUI guiRef) {
 		this.rMgr = resourceManager;
 		this.currentExecuteAddress = rMgr.getStartAddressInt();
 		this.instLuncher = new InstLuncher(resourceManager);
 		this.instTable = new InstTable(instFile);
+		this.guiRef = guiRef;
 	}
 
 	/** 모델에 섹션 리스트를 설정하고, 기본 현재 섹션을 첫 섹션으로 초기화 */
@@ -37,7 +39,7 @@ public class SicSimulator {
 		this.sections.clear();
 		this.sections.addAll(sections);
 		if (!sections.isEmpty()) {
-			setCurrentSection(sections.getFirst().getSectionName());
+			setCurrentSection(sections.getFirst());
 		}
 	}
 
@@ -46,14 +48,12 @@ public class SicSimulator {
 	}
 
 	/** 현재 섹션 변경 시 이벤트 발행 */
-	private void setCurrentSection(String newSection) {
-		String old = this.currentSectionName;
-		this.currentSectionName = newSection;
-		pcs.firePropertyChange("currentSection", old, newSection);
-		// GUI에도 즉시 반영
-		if (guiRef != null) {
-			guiRef.showCurrentSection(newSection);
-		}
+	private void setCurrentSection(SectionInfo section) {
+		String sectionName = section.getSectionName();
+		int startAddress = section.getStartAddress();
+		int length = section.getLength();
+
+		rMgr.setProgramInfo(sectionName, startAddress, length);
 	}
 
 	public String getCurrentSection() {
@@ -74,10 +74,10 @@ public class SicSimulator {
 	}
 
 	/** 한 단계 실행 및 GUI 업데이트 */
-	public void oneStep(VisualSimulatorGUI gui) {
+	public boolean oneStep(VisualSimulatorGUI gui) {
 		int execAddr = currentExecuteAddress;
 
-//		// 메모리에서 object code fetch
+		// 메모리에서 object code fetch
 		char b1 = rMgr.memory[execAddr];
 		char b2 = rMgr.memory[execAddr + 1];
 
@@ -88,7 +88,6 @@ public class SicSimulator {
 			String warn = String.format("⚠ 알 수 없는 명령어 at 0x%04X: %02X%02X", execAddr, (int)b1, (int)b2);
 			gui.appendLog(warn);
 			addLog(warn);
-			return;
 		}
 
 		boolean format4 = ((b2 & 0x10) == 0x10 && info.getFormat() == 3);
@@ -109,7 +108,7 @@ public class SicSimulator {
 			int s = sec.getStartAddress();
 			if(execAddr >= s && execAddr < s + sec.getLength()) {
 				if (!sec.getSectionName().equals(currentSectionName)) {
-					setCurrentSection(sec.getSectionName());
+					setCurrentSection(sec);
 				}
 				break;
 			}
@@ -120,17 +119,26 @@ public class SicSimulator {
 		currentExecuteAddress = nextExecAddr;
 
 		String logMsg = String.format("실행 : %s (%s) at 0x%04X", info.getMnemonic(), charArrayToHex(bytes), execAddr);
-		gui.showCurrentInstruction(String.format("%04X", execAddr), charArrayToHex(bytes), info.getMnemonic());
 		gui.update(rMgr);
 		addLog(logMsg);
+		gui.showCurrentInstruction(String.format("%04X", execAddr), charArrayToHex(bytes), info.getMnemonic());
 
 		// 종료 감지
+		if(charArrayToHex(bytes).equalsIgnoreCase("3E2000")) {
+			String msg = String.format("🛑 종료 명령 감지 (3E2000) at 0x%04X", execAddr);
+			gui.appendLog(msg);
+			addLog(msg);
+			gui.showCurrentInstruction(String.format("%04X", execAddr), charArrayToHex(bytes), info.getMnemonic());
+			return true;
+		}
+		return false;
 	}
 
 	/** 남은 모든 명령어 연속 실행 */
 	public void allStep(VisualSimulatorGUI gui) {
-		while (currentInstructionIndex < instructionQueue.size()) {
-			oneStep(gui);
+		while(true) {
+			boolean isEnd = oneStep(gui);
+			if(isEnd) break;
 		}
 	}
 
