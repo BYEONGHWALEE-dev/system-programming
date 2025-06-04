@@ -18,11 +18,11 @@ public class VisualSimulator {
 	/**
 	 * 프로그램 로드 명령을 전달한다.
 	 */
-	public void load(File program) {
-		// ...
-		sicLoader.load(program);
-		sicSimulator.load(program);
-	};
+//	public void load(File program) {
+//		// ...
+//		sicLoader.load(program);
+//		sicSimulator.load(program);
+//	};
 
 	/**
 	 * 하나의 명령어만 수행할 것을 SicSimulator에 요청한다.

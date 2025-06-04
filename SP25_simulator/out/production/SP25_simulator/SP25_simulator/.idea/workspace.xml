@@ -5,11 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="f6e4fa1f-6439-445a-814a-b7ab0843bf52" name="변경" comment="">
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_Project1b/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_Project1b/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/05.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/05.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/SicLoader.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/SicLoader.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/SicSimulator.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/SicSimulator.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/VisualSimulatorGUI.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/VisualSimulatorGUI.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/out/production/SP25_simulator/SP25_simulator/05.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/out/production/SP25_simulator/SP25_simulator/05.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/out/production/SP25_simulator/SP25_simulator/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/out/production/SP25_simulator/SP25_simulator/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -57,6 +58,7 @@
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;File.Encoding&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;,
     &quot;애플리케이션.VisualSimulatorGUI.executor&quot;: &quot;Run&quot;
   }
@@ -64,6 +66,7 @@
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator" />
+      <recent name="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/assembler" />
     </key>
   </component>
   <component name="RunManager">
@@ -115,7 +118,14 @@
       <workItem from="1748619712965" duration="817000" />
       <workItem from="1748878321040" duration="15032000" />
       <workItem from="1748956441609" duration="14858000" />
-      <workItem from="1749040054672" duration="4960000" />
+      <workItem from="1749040054672" duration="12769000" />
+      <workItem from="1749054842602" duration="38000" />
+      <workItem from="1749055408057" duration="263000" />
+      <workItem from="1749055673733" duration="190000" />
+      <workItem from="1749055938315" duration="298000" />
+      <workItem from="1749056240055" duration="37000" />
+      <workItem from="1749056279937" duration="95000" />
+      <workItem from="1749056376849" duration="993000" />
     </task>
     <servers />
   </component>
@@ -123,11 +133,24 @@
     <option name="version" value="3" />
   </component>
   <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/InstLuncher.java</url>
+          <line>345</line>
+          <option name="timeStamp" value="4" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
     <watches-manager>
       <configuration name="Application">
         <watch expression="bytes[2]" />
         <watch expression="br" />
       </configuration>
     </watches-manager>
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
   </component>
 </project>

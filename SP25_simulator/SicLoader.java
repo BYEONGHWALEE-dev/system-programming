@@ -20,10 +20,11 @@ public class SicLoader {
 		this.sicSimulator = sicSimulator;
 	}
 
-	public void load(File objectFile) {
+	public void load(String filePath) {
 		// Resource initializing
 		rMgr.initializeResource();
 		try {
+			File objectFile = new File(filePath);
 			List<SectionInfo> sections = runPass1(objectFile);
 			sicSimulator.setSections(sections);
 			runPass2(sections, rMgr, sicSimulator);

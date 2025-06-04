@@ -1,7 +1,7 @@
 package SP25_simulator;
 
 import SP25_simulator.section.SectionInfo;
-
+import SP25_simulator.assembler.*;
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
@@ -15,6 +15,7 @@ public class VisualSimulatorGUI extends JFrame{
     private final ResourceManager resourceManager = new ResourceManager();
     private final SicSimulator sicSimulator = new SicSimulator(resourceManager, "inst_table.txt", this);
     private final SicLoader sicLoader = new SicLoader(resourceManager, sicSimulator);
+    private  Assembler assembler;
 
     // 상단
     private JTextField fileNameField;
@@ -171,8 +172,10 @@ public class VisualSimulatorGUI extends JFrame{
                 File file = chooser.getSelectedFile();
                 fileNameField.setText(file.getAbsolutePath());
 
+                Assembler.assemble(file.getAbsolutePath());
+
                 // 로드 순서
-                sicLoader.load(file);
+                sicLoader.load("output_objectcode.txt");
                 updateSimulatorView(sicSimulator);
                 log("파일 로드 완료: " + file.getName());
 
