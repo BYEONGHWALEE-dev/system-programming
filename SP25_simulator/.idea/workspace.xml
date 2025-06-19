@@ -5,28 +5,90 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="f6e4fa1f-6439-445a-814a-b7ab0843bf52" name="변경" comment="">
-      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_Project1b/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_Project1b/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_Project1b/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_Project1b/.idea/SP25_Project1b.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_Project1b/.idea/misc.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_Project1b/.idea/modules.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_Project1b/.idea/vcs.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_Project1b/.idea/workspace.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_Project1b/Project1b/.classpath" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_Project1b/Project1b/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_Project1b/Project1b/.idea/Project1b.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_Project1b/Project1b/.idea/misc.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_Project1b/Project1b/.idea/modules.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_Project1b/Project1b/.idea/vcs.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_Project1b/Project1b/.idea/workspace.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_Project1b/Project1b/.project" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_Project1b/Project1b/.settings/org.eclipse.jdt.core.prefs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_Project1b/Project1b/bin/Assembler.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_Project1b/Project1b/bin/InstTable.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_Project1b/Project1b/bin/Instruction.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_Project1b/Project1b/bin/SymbolTable.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_Project1b/Project1b/bin/Token.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_Project1b/Project1b/bin/TokenTable.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_Project1b/Project1b/src/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_Project1b/Project1b/src/.idea/.name" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_Project1b/Project1b/src/.idea/encodings.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_Project1b/Project1b/src/.idea/misc.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_Project1b/Project1b/src/.idea/modules.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_Project1b/Project1b/src/.idea/vcs.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_Project1b/Project1b/src/Assembler.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_Project1b/Project1b/src/InstTable.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_Project1b/Project1b/src/LiteralTable.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_Project1b/Project1b/src/ModificationTable.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_Project1b/Project1b/src/Project1b.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_Project1b/Project1b/src/RefTable.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_Project1b/Project1b/src/SymbolTable.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_Project1b/Project1b/src/TokenTable.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_Project1b/Project1b/src/Utility.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_Project1b/Project1b/src/assets/input.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_Project1b/Project1b/src/assets/inst_table.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_Project1b/Project1b/src/out/production/Project1b/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_Project1b/Project1b/src/out/production/Project1b/.idea/.name" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_Project1b/Project1b/src/out/production/Project1b/.idea/encodings.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_Project1b/Project1b/src/out/production/Project1b/.idea/misc.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_Project1b/Project1b/src/out/production/Project1b/.idea/modules.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_Project1b/Project1b/src/out/production/Project1b/.idea/vcs.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_Project1b/Project1b/src/out/production/Project1b/Assembler.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_Project1b/Project1b/src/out/production/Project1b/InstTable.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_Project1b/Project1b/src/out/production/Project1b/Instruction.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_Project1b/Project1b/src/out/production/Project1b/LiteralTable.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_Project1b/Project1b/src/out/production/Project1b/ModificationRecord.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_Project1b/Project1b/src/out/production/Project1b/ModificationTable.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_Project1b/Project1b/src/out/production/Project1b/Project1b.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_Project1b/Project1b/src/out/production/Project1b/RefTable.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_Project1b/Project1b/src/out/production/Project1b/SymbolTable.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_Project1b/Project1b/src/out/production/Project1b/Token.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_Project1b/Project1b/src/out/production/Project1b/TokenTable.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_Project1b/Project1b/src/out/production/Project1b/Utility.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_Project1b/Project1b/src/out/production/Project1b/assets/input.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_Project1b/Project1b/src/out/production/Project1b/assets/inst_table.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_Project1b/Project1b/src/out/production/Project1b/output_littab.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_Project1b/Project1b/src/out/production/Project1b/output_objectcode.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_Project1b/Project1b/src/out/production/Project1b/output_symtab.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_Project1b/Project1b/src/output_littab.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_Project1b/Project1b/src/output_objectcode.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_Project1b/Project1b/src/output_symtab.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_Project1b/input.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_Project1b/input2_error.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_Project1b/output_littab_ex.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_Project1b/output_objectcode_ex.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_Project1b/output_symtab_ex.txt" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/05.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/device/05.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/ExecutableInstruction.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/F1.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/device/F1.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/ResourceManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/ResourceManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/SicLoader.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/SicLoader.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/SicSimulator.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/SicSimulator.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/VisualSimulator.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/VisualSimulatorGUI.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/VisualSimulatorGUI.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/assembler/Assembler.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/assembler/Assembler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/assembler/output_littab.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/assembler/output_objectcode.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/assembler/output_symtab.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/out/production/SP25_simulator/SP25_simulator/.idea/encodings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/out/production/SP25_simulator/SP25_simulator/.idea/encodings.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/InstLuncher.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/InstLuncher.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/assembler/assets/input.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/assembler/assets/input.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/device/05.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/device/05.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/out/production/SP25_simulator/SP25_simulator/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/out/production/SP25_simulator/SP25_simulator/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/out/production/SP25_simulator/SP25_simulator/05.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/out/production/SP25_simulator/SP25_simulator/05.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/out/production/SP25_simulator/SP25_simulator/SicLoader.class" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/out/production/SP25_simulator/SP25_simulator/SicLoader.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/out/production/SP25_simulator/SP25_simulator/VisualSimulator.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/out/production/SP25_simulator/SP25_simulator/VisualSimulatorGUI.class" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/out/production/SP25_simulator/SP25_simulator/VisualSimulatorGUI.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/out/production/SP25_simulator/SP25_simulator/assembler/Assembler.class" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/out/production/SP25_simulator/SP25_simulator/assembler/Assembler.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/output_objectcode.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/out/production/SP25_simulator/SP25_simulator/InstLuncher.class" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/out/production/SP25_simulator/SP25_simulator/InstLuncher.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/out/production/SP25_simulator/SP25_simulator/ResourceManager.class" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/out/production/SP25_simulator/SP25_simulator/ResourceManager.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/out/production/SP25_simulator/SP25_simulator/device/05.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/out/production/SP25_simulator/SP25_simulator/device/05.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/out/production/SP25_simulator/SP25_simulator/device/F1.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/out/production/SP25_simulator/SP25_simulator/device/F1.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/out/production/SP25_simulator/SP25_simulator/output_objectcode.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/out/production/SP25_simulator/SP25_simulator/output_objectcode.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/output_objectcode.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/output_objectcode.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/project#1/input-1.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/project#1/input-1.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/project#1/my_assembler_20201551/my_assembler_20201551.xcodeproj/project.xcworkspace/xcuserdata/byeonghwa.xcuserdatad/UserInterfaceState.xcuserstate" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/project#1/my_assembler_20201551/my_assembler_20201551.xcodeproj/project.xcworkspace/xcuserdata/byeonghwa.xcuserdatad/UserInterfaceState.xcuserstate" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/project#1/my_assembler_20201551/my_assembler_20201551/main.c" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/project#1/my_assembler_20201551/my_assembler_20201551/main.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/project#1/my_assembler_20201551/my_assembler_20201551/my_assembler_20201551.h" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/project#1/my_assembler_20201551/my_assembler_20201551/my_assembler_20201551.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -63,22 +125,25 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "main",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "/Users/byeonghwa/Desktop/LEE/University/25-1/시스템프로그래밍/Assignment/Assembler/SP25_simulator/device",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "File.Encoding",
-    "vue.rearranger.settings.migration": "true",
-    "애플리케이션.VisualSimulatorGUI.executor": "Run"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/byeonghwa/Desktop/LEE/University/25-1/시스템프로그래밍/Assignment/Assembler/SP25_simulator/device&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;모듈&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.09216589&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;File.Encoding&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;,
+    &quot;애플리케이션.VisualSimulatorGUI.executor&quot;: &quot;Run&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/../../../../시스템프로그래밍/Assignment/Assembler/SP25_simulator/device" />
@@ -145,7 +210,22 @@
       <workItem from="1749056279937" duration="95000" />
       <workItem from="1749056376849" duration="1270000" />
       <workItem from="1749057653019" duration="3322000" />
-      <workItem from="1749060982807" duration="1911000" />
+      <workItem from="1749060982807" duration="2054000" />
+      <workItem from="1749063045450" duration="20000" />
+      <workItem from="1749104128910" duration="2998000" />
+      <workItem from="1749118630890" duration="187000" />
+      <workItem from="1749118821256" duration="5460000" />
+      <workItem from="1749202874864" duration="3983000" />
+      <workItem from="1749208709769" duration="3000" />
+      <workItem from="1749208720481" duration="3000" />
+      <workItem from="1749209098539" duration="42000" />
+      <workItem from="1749209249806" duration="8000" />
+      <workItem from="1749209552890" duration="200000" />
+      <workItem from="1749572280754" duration="3137000" />
+      <workItem from="1750044621742" duration="3096000" />
+      <workItem from="1750051258893" duration="106000" />
+      <workItem from="1750140545970" duration="155000" />
+      <workItem from="1750334897248" duration="183000" />
     </task>
     <servers />
   </component>

@@ -84,16 +84,12 @@ public class InstLuncher {
     private void doLda(boolean[] flags, int disp) {
         int value = resolveTargetValue(disp, flags);
         rMgr.setRegister(0, value);
-
-        System.out.printf("✔ LDA 완료: A ← %06X\n", value);
     }
 
 
     private void doLdx(boolean[] flags, int disp) {
         int result = resolveTargetValue(disp, flags);
         rMgr.setRegister(1, result);
-
-        System.out.printf("✔ LDX 완료: X ← %06X\n", result);
     }
 
     private void doLdch(boolean[] flags, int disp) {
@@ -105,15 +101,11 @@ public class InstLuncher {
         int a = rMgr.getRegister(0);
         int newA = (a & 0xFFFF00) | byteVal;
         rMgr.setRegister(0, newA);
-
-        System.out.printf("✔ LDCH → A ← M[0x%04X] = %02X → A = %06X\n", addr, byteVal, newA);
     }
 
     private void doLdb(boolean[] flags, int disp) {
         int value = resolveTargetValue(disp, flags);
         rMgr.setRegister(3, value); // B 레지스터
-
-        System.out.printf("✔ LDB 완료: B ← %06X\n", value);
     }
 
     private void doLdt(boolean[] flags, int disp) {
@@ -124,8 +116,6 @@ public class InstLuncher {
         int value = ((data[0] & 0xFF) << 16) | ((data[1] & 0xFF) << 8) | (data[2] & 0xFF);
 
         rMgr.setRegister(5, value);
-
-        System.out.printf("✔ LDT → T ← M[0x%04X] = %06X\n", addr, value);
     }
 
     private void doSta(boolean[] flags, int disp) {
@@ -138,7 +128,6 @@ public class InstLuncher {
                 (char)(a & 0xFF)
         };
         rMgr.setMemory(addr, data, 3);
-        System.out.printf("✔ STA → M[0x%04X] ← A = %06X\n", addr, a);
     }
 
     private void doStx(boolean[] flags, int disp) {
@@ -151,7 +140,6 @@ public class InstLuncher {
                 (char)(x & 0xFF)
         };
         rMgr.setMemory(addr, data, 3);
-        System.out.printf("✔ STX → M[0x%04X] ← X = %06X\n", addr, x);
     }
 
     private void doStb(boolean[] flags, int disp) {
@@ -164,14 +152,12 @@ public class InstLuncher {
                 (char)(b & 0xFF)
         };
         rMgr.setMemory(addr, data, 3);
-        System.out.printf("✔ STB → M[0x%04X] ← B = %06X\n", addr, b);
     }
 
     private void doStl(boolean[] flags, int disp) {
         int addr = resolveTargetAddr(disp, flags);
         int l = rMgr.getRegister(2);
         rMgr.storeWord(addr, l);
-        System.out.printf("✔ STL → [0x%04X] ← L = %06X\n", addr, l);
     }
 
     private void doStch(boolean[] flags, int disp) {
@@ -181,8 +167,6 @@ public class InstLuncher {
         char byteVal = (char)(a & 0xFF);
 
         rMgr.setMemory(addr, new char[]{byteVal}, 1);
-
-        System.out.printf("✔ STCH → M[0x%04X] ← A의 하위 바이트 = %02X\n", addr, (int)byteVal);
     }
 
     private void doComp(boolean[] flags, int disp) {
@@ -205,8 +189,6 @@ public class InstLuncher {
         int cmp = Integer.compare(regA, memVal);
 
         rMgr.setRegister(9, cmp);
-
-        System.out.printf("✔ COMP → A(%06X) vs (%06X) → SW = %d\n", regA, memVal, cmp);
     }
 
     private int doJsub(boolean[] flags, int disp, int currentAddr) {
@@ -214,53 +196,40 @@ public class InstLuncher {
         int targetAddr = resolveTargetAddr(disp, flags);
         int linkageStoredAddr = currentAddr + (flags[5] ? 4 : 3);
         rMgr.setRegister(2, linkageStoredAddr);        // L ← 현재 주소
-        System.out.printf("✔ JSUB → PC ← 0x%04X (L = 0x%04X)\n", targetAddr, currentAddr);
-
         return targetAddr;
     }
 
 
     private int doRsub(){
         int retAddr = rMgr.getRegister(2);
-        System.out.printf("✔ RSUB → PC ← 0x%04X (return)\n", retAddr);
-
         return retAddr;
     }
 
     private int doJump(boolean[] flags, int disp) {
         int targetAddr = resolveTargetAddr(disp, flags);
-        System.out.printf("✔ JUMP → PC ← 0x%04X\n", targetAddr);
-
         return targetAddr;
     }
 
     private int doJgt(boolean[] flags, int disp, int currentAddr) {
         if (rMgr.getRegister(9) > 0) {
-            System.out.println("✔ JGT 조건 충족 → 점프");
             return doJump(flags, disp);
         } else {
-            System.out.println("✘ JGT 조건 불충족 → 점프 안 함");
         }
         return currentAddr + (flags[5] ? 4 : 3);
     }
 
     private int doJlt(boolean[] flags, int disp, int currentAddr) {
         if (rMgr.getRegister(9) < 0) {
-            System.out.println("✔ JLT 조건 충족 → 점프");
-
             return doJump(flags, disp);
         } else {
-            System.out.println("✘ JLT 조건 불충족 → 점프 안 함");
         }
         return currentAddr + (flags[5] ? 4 : 3);
     }
 
     private int doJeq(boolean[] flags, int disp, int currentAddr) {
         if (rMgr.getRegister(9) == 0) {
-            System.out.println("✔ JEQ 조건 충족 → 점프");
             return doJump(flags, disp);
         } else {
-            System.out.println("✘ JEQ 조건 불충족 → 점프 안 함");
         }
         return currentAddr + (flags[5] ? 4 : 3);
     }
@@ -273,8 +242,6 @@ public class InstLuncher {
         String devKey = resolveDeviceKey(addr);
         boolean available = rMgr.testDevice(devKey);
         rMgr.setRegister(9, available ? 1 : 0);
-
-        System.out.printf("✔ TD → Test Device %s → SW = %d\n", devKey, available ? 1 : 0);
     }
 
     private void doRd(boolean[] flags, int disp) {
@@ -286,7 +253,6 @@ public class InstLuncher {
         int value = (data != null && data.length > 0) ? data[0] & 0xFF : 0;
 
         rMgr.setRegister(0, value);
-        System.out.printf("✔ RD → A ← Device[%s] = %02X\n", devKey, value);
     }
 
     private void doWd(boolean[] flags, int disp) {
@@ -297,7 +263,6 @@ public class InstLuncher {
         char[] data = {(char)(a & 0xFF)};
 
         rMgr.writeDevice(devKey, data, 1);
-        System.out.printf("✔ WD → Device[%s] ← A = %02X\n", devKey, a & 0xFF);
     }
 
     // ===================== Format 2 ========================
@@ -309,7 +274,6 @@ public class InstLuncher {
         if (bytes.length < 2) return;
         int r1 = (bytes[1] >> 4) & 0x0F;
         rMgr.setRegister(r1, 0);
-        System.out.println("✔ CLEAR R" + r1);
     }
 
     private void doAddr(char[] bytes) {
@@ -317,8 +281,6 @@ public class InstLuncher {
         int r2 = getR2(bytes);
         int sum = rMgr.getRegister(r1) + rMgr.getRegister(r2);;
         rMgr.setRegister(r1, sum);
-
-        System.out.printf("✔ ADDR → R%d ← R%d + R%d = %d\n", r1, r1, r2, sum);
     }
 
     private void doCompr(char[] bytes) {
@@ -329,8 +291,6 @@ public class InstLuncher {
 
         int cmp = Integer.compare(val1, val2);
         rMgr.setRegister(9, cmp);
-
-        System.out.printf("✔ COMPR R%d vs R%d → SW = %d\n", r1, r2, cmp);
     }
 
     private void doSubr(char[] bytes) {
@@ -338,8 +298,6 @@ public class InstLuncher {
         int r2 = getR2(bytes);
         int diff = rMgr.getRegister(r1) - rMgr.getRegister(r2);
         rMgr.setRegister(r1, diff);
-
-        System.out.printf("✔ SUBR → R%d ← R%d - R%d = %d\n", r1, r1, r2, diff);
     }
 
     private void doTixr(char[] bytes) {
@@ -348,7 +306,6 @@ public class InstLuncher {
         int cmp = Integer.compare(rMgr.getRegister(1), rMgr.getRegister(r1));
 
         rMgr.setRegister(9, cmp);
-        System.out.println("✔ TIXR → X와 R" + r1 + " 비교 후 SW = " + cmp);
     }
 
 
